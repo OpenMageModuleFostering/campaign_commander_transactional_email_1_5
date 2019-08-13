@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Emv_DataSync>
-            <version>0.1.0</version>
+            <version>0.2.1</version>
         </Emv_DataSync>
     </modules>
 
@@ -31,21 +31,37 @@
     </adminhtml>
 
     <global>
+        <smartfocus_attribute_processing>
+            <newsletter>emvdatasync/attributeProcessing_handler_newsletter</newsletter>
+            <purchase_information>emvdatasync/attributeProcessing_handler_purchaseInformation</purchase_information>
+        </smartfocus_attribute_processing>
         <blocks>
             <emvdatasync>
                 <class>Emv_DataSync_Block</class>
             </emvdatasync>
         </blocks>
+        <!-- Model Defintion -->
         <models>
             <emvdatasync>
                 <class>Emv_DataSync_Model</class>
+                <resourceModel>emvdatasync_mysql4</resourceModel>
             </emvdatasync>
+            <emvdatasync_mysql4>
+                <class>Emv_DataSync_Model_Mysql4</class>
+                <entities>
+                    <purchase_info>
+                        <table>emv_dataprocess_purchaseinformation</table>
+                    </purchase_info>
+                </entities>
+            </emvdatasync_mysql4>
         </models>
+        <!-- Helper Defintion -->
         <helpers>
             <emvdatasync>
                 <class>Emv_DataSync_Helper</class>
             </emvdatasync>
         </helpers>
+        <!-- Resource Defintion -->
         <resources>
             <emvdatasync_setup>
                 <setup>
@@ -66,6 +82,8 @@
                 </connection>
             </emvdatasync_read>
         </resources>
+        
+        <!-- Event observers -->
         <events>
             <!-- customer/customer -->
             <customer_save_after>
@@ -106,18 +124,28 @@
                     </emailvision_on_subscriber_save>
                 </observers>
             </newsletter_subscriber_save_after>
+            <sales_order_save_after>
+                <observers>
+                    <emailvision_on_order_save_after>
+                        <class>emvdatasync/observer</class>
+                        <method>handleOrderSaveAfter</method>
+                    </emailvision_on_order_save_after>
+                </observers>
+            </sales_order_save_after>
         </events>
+        <!-- Email Template -->
         <template>
             <email>
                 <emvdatasync_general_error_email_template translate="label" module="directory">
-                    <label>EmailVision cron errors</label>
-                    <file>emailvision/datasync/cron_errors.html</file>
+                    <label>SmartFocus Cron Errors</label>
+                    <file>smartfocus/datasync/cron_errors.html</file>
                     <type>html</type>
                 </emvdatasync_general_error_email_template>
             </email>
         </template>
     </global>
 
+    <!-- Cron tab -->
     <crontab>
         <jobs>
             <emailvision_member_export>
@@ -130,21 +158,33 @@
                     <model>emvdatasync/cron::batchMemberExport</model>
                 </run>
             </emailvision_batchmember_export>
-            <emailvision_clean>
+            <emailvision_batchmember_cleanning>
                 <run>
                     <model>emvdatasync/cron::cleanEmailVisionFiles</model>
                 </run>
-            </emailvision_clean>
+            </emailvision_batchmember_cleanning>
+            <emailvision_purchase_process>
+                <run>
+                    <model>emvdatasync/cron::startPurchaseProcess</model>
+                </run>
+            </emailvision_purchase_process>
         </jobs>
     </crontab>
 
+    <!-- Default parameters -->
     <default>
         <emvdatasync>
             <general>
+                <test_members>50</test_members>
                 <error_email_recipient>contact@domain.com</error_email_recipient>
                 <error_email_sender>general</error_email_sender>
                 <error_email_template>emvdatasync_batchmember_error_email_template</error_email_template>
             </general>
+
+            <purchase_info>
+                <enabled>0</enabled>
+                <limit_size>75000</limit_size>
+            </purchase_info>
 
             <batchmember>
                 <performance>10000</performance>

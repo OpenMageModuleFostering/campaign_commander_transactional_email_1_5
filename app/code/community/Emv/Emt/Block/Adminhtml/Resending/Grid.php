@@ -18,6 +18,7 @@ class Emv_Emt_Block_Adminhtml_Resending_Grid extends Mage_Adminhtml_Block_Widget
     {
         $collection = Mage::getResourceModel('emvemt/resending_queue_message_collection');
         $this->setCollection($collection);
+        $this->setDefaultSort('id', 'desc');
 
         parent::_prepareCollection();
     }
@@ -107,7 +108,7 @@ class Emv_Emt_Block_Adminhtml_Resending_Grid extends Mage_Adminhtml_Block_Widget
             )
         );
 
-        // EmailVision Template name
+        // SmartFocus Template name
         $this->addColumn('emv_name',
             array(
                 'header'=> Mage::helper('emvemt')->__('SmartFocus Template'),

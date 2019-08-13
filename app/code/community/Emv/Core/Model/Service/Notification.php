@@ -54,7 +54,7 @@ class Emv_Core_Model_Service_Notification extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Send Email with given template.
+     * Send Email with given template. The rest api will be used
      *
      * @param string $encrypt
      * @param string $notificationId

@@ -1,6 +1,6 @@
 <?php
 /**
- * EmailVision Email template Helper
+ * SmartFocus Email template Helper
  *
  * @category    Emv
  * @package     Emv_Emt
@@ -12,8 +12,8 @@ class Emv_Emt_Helper_Emvtemplate extends Mage_Core_Helper_Abstract
     /**
      * Xml path for different configurations
      */
-    const XML_PATH_LOG_ENABLED = 'emvemt/transactional_service/log_enabled';
-    const XML_PATH_SENDING_PARAMETER_LOG_ENABLED = 'emvemt/transactional_service/parameter_log_enabled';
+    const XML_PATH_LOG_ENABLED                     = 'emvemt/transactional_service/log_enabled';
+    const XML_PATH_SENDING_PARAMETER_LOG_ENABLED   = 'emvemt/transactional_service/parameter_log_enabled';
 
     /**
      * SmartFocus attributes for a current SmartFocus template from registry
@@ -111,7 +111,7 @@ class Emv_Emt_Helper_Emvtemplate extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Get data necessary for email sending
+     * Prepare and get data necessary for email sending
      *
      * @param string $mageTemplateId
      * @param string $accountId
@@ -161,7 +161,7 @@ class Emv_Emt_Helper_Emvtemplate extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Get collection to retreive objects for email sending
+     * Get all objects useful for email sending
      *
      * @param string $mageTemplateId
      * @param string $accountId
@@ -179,13 +179,13 @@ class Emv_Emt_Helper_Emvtemplate extends Mage_Core_Helper_Abstract
         $magentoEmailTable = $resource->getTableName('core/email_template');
 
         // get SmartFocus sending template
-        $codition = 'tmp_sending.emv_account_id  = main_table.emv_account_id  AND tmp_sending.mage_template_id = "'
+        $condition = 'tmp_sending.emv_account_id  = main_table.emv_account_id  AND tmp_sending.mage_template_id = "'
             . Emv_Emt_Model_Emt::MAGENTO_TEMPLATE_ID_FOR_EMV_SEND . '"'
             . ' AND tmp_sending.emv_send_mail_mode_id = ' . Emv_Emt_Model_Mailmode::EMV_CREATE
             ;
         $select->joinLeft(
                 array('tmp_sending'  => $emtTable),
-                $codition,
+                $condition,
                 array(
                     'sending_template.emv_template_id' => 'tmp_sending.emv_template_id',
                     'sending_template.emv_parameters' => 'tmp_sending.emv_parameters',
@@ -360,7 +360,10 @@ class Emv_Emt_Helper_Emvtemplate extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Check and create default sending template if necessary
+     *
      * @param Emv_Core_Model_Account $account
+     * @return Emv_Emt_Model_Emt
      */
     public function checkAndCreateDefaultSendingTemplate(Emv_Core_Model_Account $account)
     {
@@ -370,11 +373,39 @@ class Emv_Emt_Helper_Emvtemplate extends Mage_Core_Helper_Abstract
         $existingDefault = $this->getEmvEmt(Emv_Emt_Model_Emt::MAGENTO_TEMPLATE_ID_FOR_EMV_SEND, $account->getId());
         $needToCreate = false;
         if ($existingDefault && $existingDefault->getId()) {
-            if (!$existingDefault->getEmvTemplate()) {
+            $emvTemplate = false;
+            try {
+                $emvTemplate = $existingDefault->getEmvTemplate();
+            } catch(Mage_Core_Exception $e) {
+                // ignore Exception, if template does not exist anymore, create a new one
+            }
+
+            if (!$emvTemplate) {
                 $needToCreate = true;
                 $defaultEmt->setId($existingDefault->getId());
             } else {
                 $defaultEmt = $existingDefault;
+
+                // try to get all template parameters
+                $savedEmvParams = $existingDefault->getEmailVisionParams();
+                $newParms       = $existingDefault->getEmailVisionParams($emvTemplate);
+
+                // if the template parameters are different, need to recreate the template
+                if (
+                    !is_array($savedEmvParams)
+                    || !is_array($newParms)
+                    || count($savedEmvParams) != count($newParms)
+                ) {
+                    $needToCreate = true;
+                } else {
+                    $checkingParam = array('emv_id','emv_random', 'emv_encrypt', 'emv_name');
+                    foreach ($checkingParam as $paramName) {
+                        if (!isset($newParms[$paramName]) || $newParms[$paramName] !== $savedEmvParams[$paramName]) {
+                            $needToCreate = true;
+                            break;
+                        }
+                    }
+                }
             }
         } else {
             $needToCreate = true;
@@ -498,5 +529,44 @@ class Emv_Emt_Helper_Emvtemplate extends Mage_Core_Helper_Abstract
         }
 
         return $this->_sortedMappedAttributes;
+    }
+
+    /**
+     * Validate SmartFocus account with given account id
+     *
+     * @param string $accountId
+     * @throws Mage_Core_Exception if something is missing or not correctly defined
+     * @return boolean
+     */
+    public function validateEmvAccount($accountId)
+    {
+        $account = Mage::getModel('emvcore/account')->load($accountId);
+        if (!$account->getId()) {
+            Mage::throwException(Mage::helper('emvcore')->__('Your selected account does not exist anymore!'));
+        }
+
+        // check url
+        $url = Mage::helper('emvcore')
+            ->checkAndGetUrlForType($account, Emv_Core_Model_Account::URL_TRANSACTIONAL_SERVICE_TYPE);
+
+        try {
+            // check credentials
+            $this->checkAndCreateDefaultSendingTemplate($account);
+        } catch (EmailVision_Api_Exception $e) {
+            if ($e->isRecoverable()) {
+                Mage::throwException(
+                    Mage::helper('emvcore')
+                        ->__('Could not verify the selected account. Network problems occured!')
+                );
+            } else {
+                Mage::throwException($e->getMessage());
+            }
+        }
+
+        Mage::helper('emvcore')
+            ->checkAndGetUrlForType($account, Emv_Core_Model_Account::URL_REST_NOTIFICATION_SERVICE_TYPE);
+
+        // every thing is ok, so return true
+        return true;
     }
 }

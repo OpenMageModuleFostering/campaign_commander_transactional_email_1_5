@@ -141,7 +141,7 @@ class Emv_Emt_Block_Adminhtml_Template_Edit_Tab_General extends Mage_Adminhtml_B
     {
         // js block contains all common javascript functions
         $jsBlock = $this->getLayout()->createBlock('adminhtml/template');
-        $jsBlock->setData('edit_block', $this)->setTemplate('emailvision/emt/template/common_js.phtml');
+        $jsBlock->setData('edit_block', $this)->setTemplate('smartfocus/emt/template/common_js.phtml');
         $fieldset->addField(
             'js_block',
             'note',

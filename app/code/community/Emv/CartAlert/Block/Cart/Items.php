@@ -14,6 +14,6 @@ class Emv_CartAlert_Block_Cart_Items extends Mage_Sales_Block_Items_Abstract
     public function __construct()
     {
         parent::__construct();
-        $this->setTemplate('emailvision' . DS . 'abandonment' . DS . 'reminder' . DS . 'items.phtml');
+        $this->setTemplate('smartfocus' . DS . 'abandonment' . DS . 'reminder' . DS . 'items.phtml');
     }
 }

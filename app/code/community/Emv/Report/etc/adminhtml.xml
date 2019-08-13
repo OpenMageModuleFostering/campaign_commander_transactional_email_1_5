@@ -3,9 +3,14 @@
     <menu>
         <emailvision>
             <children>
-                <abandonment translate="title" module="abandonment_report">
-                    <title>Abandoned Cart Conversion Report</title>
-                    <action>emv_report/conversion</action>
+                <abandonment>
+                    <children>
+                        <conversion translate="title" module="abandonment_report">
+                            <title>Conversion Report</title>
+                            <action>emv_report/conversion</action>
+                            <sort_order>30</sort_order>
+                        </conversion>
+                    </children>
                 </abandonment>
             </children>
         </emailvision>
@@ -14,10 +19,15 @@
         <resources>
             <admin>
                 <children>
-                    <emailvision translate="title" module="reports">
+                    <emailvision>
                         <children>
-                            <abandonment translate="title">
-                                <title>Abandoned Cart Conversion Report</title>
+                            <abandonment>
+                                <children>
+                                    <conversion>
+                                        <title>Conversion Report</title>
+                                        <sort_order>20</sort_order>
+                                    </conversion>
+                                </children>
                             </abandonment>
                         </children>
                     </emailvision>

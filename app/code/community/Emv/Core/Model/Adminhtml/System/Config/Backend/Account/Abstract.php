@@ -89,19 +89,6 @@ abstract class Emv_Core_Model_Adminhtml_System_Config_Backend_Account_Abstract e
      */
     protected function _checkAndGetUrlForType(Emv_Core_Model_Account $account, $type)
     {
-        // get service label
-        $labels = Emv_Core_Model_Account::getUrlTypesAndLabels();
-        $serviceLabel = $type;
-        if (isset($labels[$type])) {
-            $serviceLabel = $labels[$type];
-        }
-
-        // check url
-        $url = $account->getUrlForType($type);
-        if (!$url) {
-            Mage::throwException(Mage::helper('emvcore')->__('Please define a valid url for %s !', $serviceLabel));
-        }
-
-        return $url;
+        return Mage::helper('emvcore')->checkAndGetUrlForType($account, $type);
     }
 }

@@ -1,0 +1,25 @@
+.emv_attributes .va-middle{
+    vertical-align: middle;
+}
+.emv_attributes .content-header {
+    margin-bottom: 10px;
+    border-bottom: 4px solid #FFF;
+}
+.emv_attributes textarea{
+    width: 90%;
+    margin-top: 2px;
+}
+.emv_attributes th{
+    height: 30px;
+}
+.grid tr.on-progress  { background-color: #fcf5dd; }
+.smartfocus-selection { border-collapse:collapse; width:100%; }
+.smartfocus-selection .smartfocus-selection-info { text-align:right; }
+.smartfocus-selection th { font-size:13px; padding:5px 0; text-align:left; vertical-align:middle; }
+.smartfocus-selection td { background:#f2f2f2; border-bottom:5px solid #fff; padding:5px; vertical-align:top; }
+.smartfocus-selection .smartfocus-selection-simplified { background:#fff; padding-left:35px; }
+.smartfocus-selection td a { color:#2997d8; }
+.smartfocus-selection td strong { color:#3c616a; }
+.smartfocus-selection td label { display:block; padding-left:30px; text-indent:-30px;padding-top:3px; }
+.smartfocus-selection td div label { display:inline; padding:0; text-indent:0; }
+.smartfocus-selection td input { height:13px; overflow:hidden; margin-right:15px; position:relative; top:-1px; width:13px; vertical-align:middle; }

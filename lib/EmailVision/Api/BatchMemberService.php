@@ -22,10 +22,16 @@ class EmailVision_Api_BatchMemberService extends EmailVision_Api_Common
     const CSV_FIELD_ENCLOSURE = '"';
 
     /**
-     * Max file size in byte
+     * Max file size in bytes (77 Mb)
      */
-    const MAX_FILESIZE = 50000000;
-    const MAX_ROW = 150000;
+    const MAX_FILESIZE = 80000000;
+    const MAX_ROW = 250000;
+
+    /**
+     * @var int
+     */
+    protected $_maxFilesize = false;
+    protected $_maxRow = false;
 
     /**
      * File index
@@ -63,6 +69,56 @@ class EmailVision_Api_BatchMemberService extends EmailVision_Api_Common
     public static function getStatusOkWithoutError()
     {
         return self::$_statusOk;
+    }
+
+    /**
+     * Set max file size in bytes
+     *
+     * @param int $size
+     * @return EmailVision_Api_BatchMemberService
+     */
+    public function setMaxFileSize($size)
+    {
+        $this->_maxFilesize = (int)$size;
+        return $this;
+    }
+
+    /**
+     * Set max row
+     *
+     * @param int $maxRow
+     * @return EmailVision_Api_BatchMemberService
+     */
+    public function setMaxRow($maxRow)
+    {
+        $this->_maxRow = (int)$maxRow;
+        return $this;
+    }
+
+    /**
+     * Get allowed max file size in bytes
+     *
+     * @return int
+     */
+    public function getMaxFileSize()
+    {
+        if (!$this->_maxFilesize) {
+            $this->_maxFilesize = self::MAX_FILESIZE;
+        }
+        return $this->_maxFilesize;
+    }
+
+    /**
+     * Get allowed max row
+     *
+     * @return int
+     */
+    public function getMaxRow()
+    {
+        if (!$this->_maxRow) {
+            $this->_maxRow = self::MAX_ROW;
+        }
+        return $this->_maxRow;
     }
 
     /**
@@ -135,11 +191,11 @@ class EmailVision_Api_BatchMemberService extends EmailVision_Api_Common
                         $rowCount++;
                         $listMember[] = $id;
 
-                        // If filesize approach max uploadable (48Mb), close file and set a new one on next turn
+                        // If file size approaches max uploadable, close file and set a new one on next turn
                         if (
-                            $fileSizeInBytes > self::MAX_FILESIZE
+                            $fileSizeInBytes > $this->getMaxFileSize()
                             || --$totalMemberCount == 0
-                            || $rowCount >= self::MAX_ROW
+                            || $rowCount >= $this->getMaxRow()
                         ) {
                             fclose($fileHandler);
                             $fileHandler = null;

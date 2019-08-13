@@ -1,0 +1,61 @@
+<?php
+/**
+ * @var $this Emv_Core_Block_Adminhtml_Config_ExtensionStatus
+ * */
+?>
+<table class="smartfocus-selection" cellspacing="0">
+    <col width="75%" />
+    <col width="25%" />
+    <thead>
+        <tr>
+            <th><?php echo $this->escapeHtml($this->getExtensionVersion()) ?></th>
+            <?php if ($this->getHelpLink()) :?>
+                <th class="smartfocus-selection-info">
+                    <a href="<?php echo $this->escapeHtml($this->getHelpLink()) ?>" target="blank"><?php echo Mage::helper('emvcore')->__('Help')?></a>
+                </th>
+            <?php endif;?>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="2">
+                <label><?php echo $this->getMagentoVersionStatus(); ?></label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <label><?php echo $this->getEmvModulesVersionStatus(); ?></label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <label><?php echo $this->getPhpEnvironmentStatus(); ?></label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <label><?php echo $this->getCronStatus(); ?></label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                    <label><?php echo $this->getMemoryStatus(); ?></label>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                    <label><?php echo $this->getDirectoryPermissionStatus(); ?></label>
+            </td>
+        </tr>
+        <?php foreach($this->getOtherTestList() as $test) :?>
+            <?php $status = $this->getStatusForTest($test)?>
+            <?php if ($status) :?>
+            <tr>
+                <td colspan="2">
+                        <label><?php echo $status; ?></label>
+                </td>
+            </tr>
+            <?php endif;?>
+        <?php endforeach;?>
+    </tbody>
+</table>

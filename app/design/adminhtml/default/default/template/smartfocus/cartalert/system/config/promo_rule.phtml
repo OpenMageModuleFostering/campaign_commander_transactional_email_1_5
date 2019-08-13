@@ -1,0 +1,75 @@
+    <?php
+        // prepare js file magento/js/mage/adminhtml
+        $baseJsUrl = Mage::getBaseUrl('js');
+        $widgetJs  = $baseJsUrl . 'mage/adminhtml/wysiwyg/widget.js';
+    ?>
+    <script type='text/javascript' src='<?php echo $widgetJs ?>'></script>
+
+    <?php
+        $widgetCss   = Mage::getDesign()->getSkinUrl('lib/prototype/windows/themes/magento.css');
+    ?>
+    <link rel='stylesheet' type='text/css' href='<?php echo $widgetCss?>' />
+
+    <?php
+        $widgetCss   = Mage::getBaseUrl('js') . 'prototype/windows/themes/magento.css';
+    ?>
+    <link rel='stylesheet' type='text/css' href='<?php echo $widgetCss?>' />
+
+    <?php
+        $wdgetCssDefault   = Mage::getBaseUrl('js') . 'prototype/windows/themes/default.css';
+    ?>
+    <link rel='stylesheet' type='text/css' href='<?php echo $wdgetCssDefault ?>' />
+
+
+    <?php // chooser button template?>
+    <span id="salesrule_id"></span>
+    <label class="widget-option-label" id="salesrule_idc30d6133660369e799b882a1d5da011clabel">
+        <?php echo $this->getLabel()?>
+    </label>
+
+    <div id="salesrule_idc30d6133660369e799b882a1d5da011cadvice-container" class="hidden"></div>
+    <script type="text/javascript">//<![CDATA[
+        (function() {
+            var instantiateChooser = function() {
+                window.salesrule_idc30d6133660369e799b882a1d5da011c = new WysiwygWidget.chooser(
+                    "salesrule_idc30d6133660369e799b882a1d5da011c",
+                    "<?php echo $this->getUrl('*/promo_quote/chooser', array())?>uniq_id/salesrule_idc30d6133660369e799b882a1d5da011c/",
+                    <?php echo $this->getButtonConfigInJson() ?>
+                );
+                if ($("salesrule_idc30d6133660369e799b882a1d5da011cvalue")) {
+                    $("salesrule_idc30d6133660369e799b882a1d5da011cvalue").advaiceContainer = "salesrule_idc30d6133660369e799b882a1d5da011cadvice-container";
+                }
+            }
+
+            if (document.loaded) { //allow load over ajax
+                instantiateChooser();
+            } else {
+                document.observe("dom:loaded", instantiateChooser);
+            }
+        })();
+    //]]></script>
+    <p class="note" id="note_salesrule_id">
+        <span><?php echo Mage::helper('abandonment')->__('Promotion rule that reminders will advertise.')?></span>
+    </p>
+
+    <label for="choosersalesrule_id"></label>
+    <span id="choosersalesrule_id"></span>
+    <input id="salesrule_idc30d6133660369e799b882a1d5da011cvalue"
+        name="<?php echo $this->getElementName()?>" value="<?php echo $this->getRuleId()?>" readonly="" type="hidden"
+    />
+    <button  id="salesrule_idc30d6133660369e799b882a1d5da011ccontrol" title="<?php echo Mage::helper('abandonment')->__('Select Promotion Rule')?>" type="button" class="scalable btn-chooser" onclick="salesrule_idc30d6133660369e799b882a1d5da011c.choose()" style="">
+        <span><span><span><?php echo Mage::helper('abandonment')->__('Select Promotion Rule')?></span></span></span>
+    </button>
+
+
+    <?php // reset promotion ?>
+    <button  id="clearrule" title="<?php echo Mage::helper('abandonment')->__('Clear Selected Rule')?>"
+        type="button" class="scalable btn-chooser" onclick="clearRule()" style="">
+        <span><span><span><?php echo Mage::helper('abandonment')->__('Clear Selected Rule')?></span></span></span>
+    </button>
+    <script>
+        function clearRule() {
+            $('salesrule_idc30d6133660369e799b882a1d5da011cvalue').value = '';
+            $('salesrule_idc30d6133660369e799b882a1d5da011clabel').innerHTML = '<?php echo  Mage::helper('widget')->__('Not Selected')?>';
+        }
+    </script>

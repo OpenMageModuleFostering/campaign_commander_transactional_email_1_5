@@ -52,7 +52,7 @@ class Emv_Emt_Block_Adminhtml_Template_Edit_Tab_EmvDyn extends Mage_Adminhtml_Bl
     public function __construct()
     {
         parent::__construct();
-        $this->setTemplate('emailvision/emt/template/mapped_attributes.phtml');
+        $this->setTemplate('smartfocus/emt/template/mapped_attributes.phtml');
     }
 
     /**

@@ -200,6 +200,6 @@ class Emv_Report_Adminhtml_ConversionController extends Mage_Adminhtml_Controlle
      */
     protected function _isAllowed()
     {
-        return Mage::getSingleton('admin/session')->isAllowed('emailvision/abandonment');
+        return Mage::getSingleton('admin/session')->isAllowed('emailvision/abandonment/conversion');
     }
 }

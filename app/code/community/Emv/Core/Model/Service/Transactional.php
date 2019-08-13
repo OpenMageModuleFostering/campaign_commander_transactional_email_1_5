@@ -42,9 +42,9 @@ class Emv_Core_Model_Service_Transactional extends Emv_Core_Model_Service_Abstra
     public function getTemplateById($templateId)
     {
         $emvTemplate = null;
-        $serivce = $this->getApiService();
+        $service = $this->getApiService();
         try {
-            $emvTemplate = $serivce->getTemplateById($templateId);
+            $emvTemplate = $service->getTemplateById($templateId);
         } catch (Exception $e) {
             // log errors
             Mage::logException($e);

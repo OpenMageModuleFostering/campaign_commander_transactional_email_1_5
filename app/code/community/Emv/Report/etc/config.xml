@@ -31,7 +31,7 @@
         <layout>
             <updates>
                 <abandonment_report>
-                    <file>emailvision/abandonment_report.xml</file>
+                    <file>smartfocus/abandonment_report.xml</file>
                 </abandonment_report>
             </updates>
         </layout>

@@ -55,7 +55,7 @@ class Emv_Emt_Model_Emt extends Mage_Core_Model_Abstract
     {
         $this->_emailVisionParams = array();
 
-        //reset emt template if user switch mail mode from 'emv create / SmartFocus Template' to 'emv send' or 'classic'
+        //reset emt template if user switch mail mode from 'SmartFocus Template' to 'SmartFocus Routage' or 'Classic'
         if (
             $this->getEmvSendMailModeId() == Emv_Emt_Model_Mailmode::CLASSIC_MODE
             || $this->getEmvSendMailModeId() == Emv_Emt_Model_Mailmode::EMV_SEND

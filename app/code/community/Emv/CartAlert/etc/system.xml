@@ -2,7 +2,7 @@
 <config>
     <sections>
         <abandonment translate="label" module="abandonment">
-            <label>Abandonment Cart Alert</label>
+            <label>Abandoned Cart Reminders</label>
             <tab>emailvision</tab>
             <frontend_type>text</frontend_type>
             <sort_order>50</sort_order>
@@ -10,20 +10,54 @@
             <show_in_website>1</show_in_website>
             <show_in_store>1</show_in_store>
             <groups>
+                <extension_status translate="label">
+                    <label>Plugin Status</label>
+                    <frontend_model>emvcore/adminhtml_config_extensionStatus</frontend_model>
+                    <sort_order>0</sort_order>
+                    <frontend_type>text</frontend_type>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                </extension_status>
                 <general translate="label" module="abandonment">
                     <label>General</label>
                     <expanded>0</expanded>
                     <frontend_type>text</frontend_type>
-                    <sort_order>0</sort_order>
+                    <sort_order>1</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
+                        <test_mode translate="label" module="abandonment">
+                            <label>Enable test mode (the calculation will be in minutes)</label>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </test_mode>
+                        <limit translate="label" module="abandonment">
+                            <label>Maximum Abandoned Carts per One Run</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </limit>
+                        <lifetime translate="label" module="abandonment">
+                            <label>Cart Lifetime (in hours)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </lifetime>
                         <email_identity translate="label" module="abandonment">
                             <label>Email Sender</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_email_identity</source_model>
-                            <sort_order>1</sort_order>
+                            <sort_order>5</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -31,20 +65,19 @@
                         <image_size translate="label" module="abandonment">
                             <label>Image Size</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>5</sort_order>
+                            <sort_order>8</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <frontend_class>validate-digits</frontend_class>
                         </image_size>
                         <cart_rule translate="label comment" module="abandonment">
-                            <label>Shopping Cart Prices Rule Id</label>
-                            <frontend_type>text</frontend_type>
+                            <label>Shopping Cart Prices Rule</label>
+                            <frontend_model>abandonment/adminhtml_system_config_promoRule</frontend_model>
                             <sort_order>12</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <frontend_class>validate-digits</frontend_class>
                         </cart_rule>
                         <length translate="label comment" module="abandonment">
                             <label>Coupon Code Length</label>
@@ -94,7 +127,7 @@
                     </fields>
                 </general>
                 <first_alert_config translate="label" module="abandonment">
-                    <label>First Alert Configuration</label>
+                    <label>First Reminder Configuration</label>
                     <expanded>0</expanded>
                     <frontend_type>text</frontend_type>
                     <sort_order>5</sort_order>
@@ -103,7 +136,7 @@
                     <show_in_store>1</show_in_store>
                     <fields>
                         <enabled translate="label" module="abandonment">
-                            <label>First Email Alert Enable</label>
+                            <label>First Email Reminder Enable</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>10</sort_order>
@@ -112,15 +145,16 @@
                             <show_in_store>1</show_in_store>
                         </enabled>
                         <delay translate="label" module="abandonment">
-                            <label>First Email Alert Delay (in hour)</label>
+                            <label>First Email Reminder Delay (in hours)</label>
                             <frontend_type>text</frontend_type>
+                            <comment>By default, the calculation will be done in hours. If test mode enabled, it will be in minutes instead.</comment>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </delay>
                         <template translate="label" module="abandonment">
-                            <label>First Email Alert Template</label>
+                            <label>First Email Reminder Template</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_email_template</source_model>
                             <sort_order>30</sort_order>
@@ -131,7 +165,7 @@
                     </fields>
                 </first_alert_config>
                 <second_alert_config translate="label" module="abandonment">
-                    <label>Second Alert Configuration</label>
+                    <label>Second Reminder Configuration</label>
                     <expanded>0</expanded>
                     <frontend_type>text</frontend_type>
                     <sort_order>10</sort_order>
@@ -140,7 +174,7 @@
                     <show_in_store>1</show_in_store>
                     <fields>
                         <enabled translate="label" module="abandonment">
-                            <label>Second Email Alert Enable</label>
+                            <label>Second Email Reminder Enable</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>10</sort_order>
@@ -149,15 +183,16 @@
                             <show_in_store>1</show_in_store>
                         </enabled>
                         <delay translate="label" module="abandonment">
-                            <label>Second Email Alert Delay (in hour)</label>
+                            <label>Second Email Reminder Delay (in hours)</label>
                             <frontend_type>text</frontend_type>
+                            <comment>By default, the calculation will be done in hours. If test mode enabled, it will be in minutes instead.</comment>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </delay>
                         <template translate="label" module="abandonment">
-                            <label>Second Email Template</label>
+                            <label>Second Email Reminder Template</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_email_template</source_model>
                             <sort_order>30</sort_order>
@@ -168,7 +203,7 @@
                     </fields>
                 </second_alert_config>
                 <third_alert_config translate="label" module="abandonment">
-                    <label>Third Alert Configuration</label>
+                    <label>Third Reminder Configuration</label>
                     <expanded>0</expanded>
                     <frontend_type>text</frontend_type>
                     <sort_order>20</sort_order>
@@ -177,8 +212,9 @@
                     <show_in_store>1</show_in_store>
                     <fields>
                         <enabled translate="label" module="abandonment">
-                            <label>Third Email Alert Enable</label>
+                            <label>Third Email Reminder Enable</label>
                             <frontend_type>select</frontend_type>
+                            <comment>By default, the calculation will be done in hours. If test mode enabled, it will be in minutes instead.</comment>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
@@ -186,7 +222,7 @@
                             <show_in_store>1</show_in_store>
                         </enabled>
                         <delay translate="label" module="abandonment">
-                            <label>Third Email Alert Delay (in hour)</label>
+                            <label>Third Email Reminder Delay (in hours)</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
@@ -194,7 +230,7 @@
                             <show_in_store>1</show_in_store>
                         </delay>
                         <template translate="label" module="abandonment">
-                            <label>Third Email Alert Template</label>
+                            <label>Third Email Reminder Template</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_email_template</source_model>
                             <sort_order>30</sort_order>

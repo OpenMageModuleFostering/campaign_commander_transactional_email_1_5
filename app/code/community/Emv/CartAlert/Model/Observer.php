@@ -5,15 +5,59 @@
  *
  * @category    Emv
  * @package     Emv_CartAlert
+ * @author      Minh Quang VO (minhquang.vo@smartfocus.com)
  * @copyright   Copyright (c) 2013 SmartFocus (http://www.smartfocus.com)
  */
 class Emv_CartAlert_Model_Observer extends Mage_Core_Model_Abstract
 {
+    protected $_testMode = null;
+
+    /**
+     * @var Mage_Customer_Model_Entity_Attribute
+     */
+    protected $_subscribeAttribute = null;
+
+    /**
+     * @var array
+     */
+    protected $_reminderTypes = array('first', 'second', 'third');
+
+    /**
+     * @return boolean
+     */
+    public function getTestMode()
+    {
+        if ($this->_testMode === null) {
+            $this->_testMode = (bool)Mage::getStoreConfig(
+                Emv_CartAlert_Constants::XML_PATH_TEST_MODE_ENABLED,
+                Mage_Core_Model_App::ADMIN_STORE_ID
+            );
+        }
+
+        return $this->_testMode;
+    }
+
+    /**
+     * Get abandonment_subscribed attribute
+     * @return  Mage_Customer_Model_Entity_Attribute | null
+     */
+    protected function _getSubscribeAttribute()
+    {
+        if (!$this->_subscribeAttribute) {
+            // get customers' abandonment_subscribed value
+            $this->_subscribeAttribute = Mage::getModel('customer/customer')->getAttribute('abandonment_subscribed');
+        }
+        return $this->_subscribeAttribute;
+    }
+
     /**
      * Get abandoned quotes to send reminders
+     *
+     * @param int $limit
+     * @param string $type reminder type
      * @return Mage_Sales_Model_Mysql4_Quote_Collection
      */
-    protected function _getConcernedQuotes()
+    protected function _getConcernedQuotes($limit, $type)
     {
         // prepare query for abandoned quotes
         $minHour = Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_FIRST_ALERT_DELAY);
@@ -23,27 +67,44 @@ class Emv_CartAlert_Model_Observer extends Mage_Core_Model_Abstract
 
         /* @var $date Zend_Date */
         $from = Mage::app()->getLocale()->utcDate(null, $now);
-        $from->subHour($minHour);
+
+        if ($this->getTestMode()) {
+            $from->subMinute($minHour);
+        } else {
+            $from->subHour($minHour);
+        }
         $from = $from->toString(Varien_Date::DATETIME_INTERNAL_FORMAT);
 
         // the expiration date
         $expDate = Mage::app()->getLocale()->utcDate(null, $now);
-        $expDate->sub(Emv_CartAlert_Constants::OUTDATED_CART_DELAY, Zend_Date::HOUR);
+        $expDate->sub(Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_LIFETIME), Zend_Date::HOUR);
         $expDate = $expDate->toString(Varien_Date::DATETIME_INTERNAL_FORMAT);
 
         // get abandoned quotes
         /* @var $quotes Mage_Sales_Model_Mysql4_Quote_Collection */
         $quotes = Mage::getModel('sales/quote')->getCollection();
         $select = $quotes->getSelect();
-        // make a left join to abandonment table in order to know which template has been used
+
+        // set the limit
+        $select->limit($limit);
+
+        // make a left join to abandonment table get all data
         $select->joinLeft(
             array('a' => $quotes->getTable('abandonment/abandonment')),
             'main_table.entity_id = a.entity_id',
-            array('template')
+            array(
+                'abandonment_id',
+                'abandonment_entity_id'                                 => 'a.entity_id',
+                'abandonment_template'                                  => 'a.template',
+                'abandonment_customer_abandonment_subscribed'           => 'a.customer_abandonment_subscribed',
+                'abandonment_customer_id'                               => 'a.customer_id',
+                'abandonment_shopping_cart_rule_id'                     => 'a.shopping_cart_rule_id',
+                'abandonment_coupon_code'                               => 'a.coupon_code'
+            )
         );
 
-        //get customers' abandonment_subscribed value
-        $attr = Mage::getModel('customer/customer')->getAttribute('abandonment_subscribed');
+        // get customers' abandonment_subscribed value
+        $attr = $this->_getSubscribeAttribute();
         $adapter = $quotes->getConnection();
         if ($attr->getAttributeId()) {
             $select->joinLeft(
@@ -53,45 +114,87 @@ class Emv_CartAlert_Model_Observer extends Mage_Core_Model_Abstract
                         . ' AND abandonment_subscribed.attribute_id = ?',
                     $attr->getAttributeId()
                 ),
-                // by default, we activate abandonment reminder subscription for all clients
-                array('abandonment_subscribed_value' => 'IF(abandonment_subscribed.value IS NULL, 1, abandonment_subscribed.value)')
+                // by default, we activate abandonment reminder for all clients
+                array(
+                    'abandonment_subscribed_value'
+                        => 'IF(abandonment_subscribed.value IS NULL, 1, abandonment_subscribed.value)'
+                )
             );
         }
 
-        $select->where('a.customer_abandonment_subscribed = ? OR a.customer_abandonment_subscribed IS NULL', 1)
+        // only get the carts which
+        //    1. their users allow to receive the reminders
+        //    2. are not too late
+        //    3. have not received the third reminders yet
+        $select
+            ->where('
+                (
+                    main_table.customer_id IS NOT NULL
+                    AND (abandonment_subscribed.value = 1 OR abandonment_subscribed.value IS NULL)
+                )
+                OR (
+                    main_table.customer_id IS NULL
+                    AND (a.customer_abandonment_subscribed = 1 OR a.customer_abandonment_subscribed IS NULL)
+                )
+            ')
             ->where('a.template <> ? OR a.template IS NULL', Emv_CartAlert_Constants::OUTDATED_FLAG)
             ->where('a.template <> ? OR a.template IS NULL', Emv_CartAlert_Constants::THIRD_ALERT_FLAG)
         ;
 
+        switch ($type) {
+            case 'first' :
+                $select->where(
+                    'a.template IS NULL OR a.template = "" OR a.template = ?',
+                    Emv_CartAlert_Constants::TO_BE_PROCESSED_FLAG
+                );
+                break;
+            case 'second' :
+                $select->where('a.template = ?', Emv_CartAlert_Constants::FIRST_ALERT_FLAG);
+                break;
+            case 'third'  :
+                $select->where('a.template = ?', Emv_CartAlert_Constants::SECOND_ALERT_FLAG);
+                break;
+        }
+
         $quotes
-            ->addFieldToFilter('updated_at', array('to' => $from, 'from' => $expDate))
-            ->addFieldToFilter('items_count', array('gt' => 0))
+            ->addFieldToFilter('main_table.updated_at', array('to' => $from, 'from' => $expDate))
+            ->addFieldToFilter('items_count', array('gt' => 0)) // have at least 1 item
             ->addFieldToFilter('customer_email', array('notnull' => 1)) // a quote with a valid email address
             ->addFieldToFilter('is_active', 1) // only get active quotes
-            ->setOrder('updated_at')
+            ->setOrder('updated_at', Varien_Data_Collection::SORT_ORDER_ASC) // sort the carts from older to newer
             ;
 
         return $quotes;
     }
 
     /**
-     * Observer to check for abandoned shopping carts
+     * Process the abandonned carts for a given type reminder
+     * @param int $limit
+     * @param string $type reminder type (first, second, third)
      */
-    public function processAbandonedCarts ()
+    public function processAbandonedCartsForType($limit, $type)
     {
-        // save the current store so that this observer doesn't interfere with any other functions
-        $currentStore = Mage::app()->getStore()->getStoreId();
+        /* @var $helper Emv_CartAlert_Helper_Data */
+        $helper = Mage::helper('abandonment');
 
-        // if Shopping Cart Abandonment is enabled
-        if(
-            Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_FIRST_ALERT_ENABLED) == 1
-            || Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_SECOND_ALERT_ENABLED) == 1
-            || Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_THIRD_ALERT_ENABLED) == 1
-        ) {
-            /* @var $helper Emv_CartAlert_Helper_Data */
-            $helper = Mage::helper('abandonment');
+        $pathConfig;
+        switch ($type) {
+            case 'first' :
+                $pathConfig = Emv_CartAlert_Constants::XML_PATH_FIRST_ALERT_ENABLED;
+                break;
+            case 'second' :
+                $pathConfig = Emv_CartAlert_Constants::XML_PATH_SECOND_ALERT_ENABLED;
+                break;
+            case 'third' :
+                $pathConfig = Emv_CartAlert_Constants::XML_PATH_THIRD_ALERT_ENABLED;
+                break;
+        }
 
-            $quotes = $this->_getConcernedQuotes();
+        // check if this reminder is activated
+        if (Mage::getStoreConfig($pathConfig) == 1) {
+            // get all quotes that can be sent for this reminder
+            $quotes = $this->_getConcernedQuotes($limit, $type);
+
             /* @var $quote Mage_Sales_Model_Quote */
             foreach ($quotes as $quote) {
                 // Set the current store
@@ -101,7 +204,7 @@ class Emv_CartAlert_Model_Observer extends Mage_Core_Model_Abstract
                 $needToSaveAbandonment = false;
 
                 // search abandoned carts for this particular quote
-                $abandonment = Mage::getModel('abandonment/abandonment')->loadByQuoteId($quote->getEntityId());
+                $abandonment = $this->_prepareAbandonmentObjectFromQuote($quote);
 
                 if (!$abandonment->getId()) {
                     $abandonment->setEntityId($quote->getId())
@@ -127,51 +230,113 @@ class Emv_CartAlert_Model_Observer extends Mage_Core_Model_Abstract
                    );
 
                     if ($updatedTemplate != null) {
-                        $preparedCustomerName = ($quote->getCustomerPrefix() ? $quote->getCustomerPrefix() . ' ' : '')
-                            . $quote->getCustomerFirstname()
-                            . ' ' . ($quote->getCustomerMiddlename() ? $quote->getCustomerMiddlename() . ' ' : '')
-                            . $quote->getCustomerLastname()
-                            . ($quote->getCustomerSuffix() ? ' ' . $quote->getCustomerSuffix() : '')
-                            ;
-                        $quote->setPreparedCustomerName($preparedCustomerName);
-
-                        // set the unsubscription link (depends on whether the user was logged in)
-                        $quote->setUnsubLink($helper->getUnsubscribeLink($quote));
-                        // set the cart link (depends on whether the user was logged in)
-                        $quote->setCartLink($helper->getCartLink($quote, $updatedTemplate));
-                        // set the store link (depends on whether the user was logged in)
-                        $quote->setStoreLink($helper->getStoreLink($quote, $updatedTemplate));
-                        // set the reminder template will be used to send
-                        $quote->setReminderTemplate($updatedTemplate);
-
-                        // set formated grand total
-                        $quote->setPreparedGrandToTal(Mage::helper('checkout')->formatPrice($quote->getGrandTotal(), true, true));
-
                         if ($previousTemplate != $updatedTemplate) {
                             // update the reminder template will be used to send
                             $abandonment->setTemplate($updatedTemplate);
 
+                            // if we change the promotion shopping cart rule, we need to change the coupon code
                             $rule = $helper->getShoppingCartPriceRule();
                             if ($rule->getId() != $abandonment->getShoppingCartRuleId()) {
                                 $abandonment->setShoppingCartRuleId($rule->getId());
                                 $abandonment->setCouponCode($helper->getCouponCode($rule->getId()));
                             }
-
                             $needToSaveAbandonment = true;
                         }
 
-                        $helper->sendReminder($quote, $quote->getStoreId(), $abandonment);
+                        $helper->prepareAndSendReminder($updatedTemplate, $quote, $abandonment, true);
                     }
                 }
 
                 if ($needToSaveAbandonment) {
+                    $gmtDate = Mage::getModel('core/date')->gmtDate();
+                    $abandonment->setUpdatedAt($gmtDate);
                     $abandonment->save();
                 }
             }
         }
+    }
+
+    /**
+     * Observer to check for abandoned shopping carts
+     */
+    public function processAbandonedCarts ()
+    {
+        /* @var $helper Emv_CartAlert_Helper_Data */
+        $helper = Mage::helper('abandonment');
+        $createdLock = false;
+
+        // save the current store so that this observer doesn't interfere with any other functions
+        $currentStore = Mage::app()->getStore()->getStoreId();
+        // !!! it's very important to set a custom error handler in order to remove lock file in case of fatal error
+        Mage::helper('emvcore')->setSmartFocusErrorHandler();
+
+        try {
+            // check if another process is being run now
+            if (!$helper->checkLockFile()) {
+                // create lock file => do not allow several process at the same time
+                $helper->createLockFile();
+                $createdLock = true;
+
+                $limit = $helper->getCartLimitForOneRun();
+                $activatedTypes = 0;
+                if (Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_FIRST_ALERT_ENABLED) == 1) {
+                    $activatedTypes++;
+                }
+                if (Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_SECOND_ALERT_ENABLED) == 1) {
+                    $activatedTypes++;
+                }
+                if (Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_THIRD_ALERT_ENABLED) == 1) {
+                    $activatedTypes++;
+                }
+                $limitPerType = $limit;
+                if ($activatedTypes > 0) {
+                    $limitPerType = (int)$limit / $activatedTypes;
+                }
+
+                foreach($this->_reminderTypes as $type) {
+                    $this->processAbandonedCartsForType($limitPerType, $type);
+                    // return the store to normal
+                    Mage::app()->setCurrentStore($currentStore);
+                }
+            }
+        } catch (Exception $e) {
+            Mage::logException($e);
+        }
+
+        // if lock is created, need to delete it
+        if ($createdLock) {
+            try {
+                $helper->removeLockFile();
+            } catch (Exception $e) {
+                Mage::logException($e);
+            }
+        }
+
+        // reset error handler to Magento one
+        Mage::helper('emvcore')->resetErrorHandler();
 
         // return the store to normal
         Mage::app()->setCurrentStore($currentStore);
+    }
+
+    /**
+     * Prepare abandonment object from quote retrieved from last query select
+     *
+     * @param Varien_Object $quote
+     * @return Emv_CartAlert_Model_Abandonment
+     */
+    protected function _prepareAbandonmentObjectFromQuote(Varien_Object $quote)
+    {
+        $abandonment = Mage::getModel('abandonment/abandonment');
+        $abandonment->setData('abandonment_id', $quote->getData('abandonment_id'));
+        $abandonment->setData('entity_id', $quote->getData('abandonment_entity_id'));
+        $abandonment->setData('template', $quote->getData('abandonment_template'));
+        $abandonment->setData('customer_abandonment_subscribed', $quote->getData('abandonment_customer_abandonment_subscribed'));
+        $abandonment->setData('customer_id', $quote->getData('abandonment_customer_id'));
+        $abandonment->setData('shopping_cart_rule_id', $quote->getData('abandonment_shopping_cart_rule_id'));
+        $abandonment->setData('coupon_code', $quote->getData('abandonment_coupon_code'));
+
+        return $abandonment;
     }
 
     /**
@@ -199,7 +364,7 @@ class Emv_CartAlert_Model_Observer extends Mage_Core_Model_Abstract
 
         // expiration date
         $expirationDate = $locale->utcDate(null, $now);
-        $expirationDate->subHour(Emv_CartAlert_Constants::OUTDATED_CART_DELAY);
+        $expirationDate->subHour(Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_LIFETIME));
 
         if ($expirationDate->isLater($lastUpdate)) {
             $updatedTemplate = Emv_CartAlert_Constants::OUTDATED_FLAG;
@@ -210,23 +375,41 @@ class Emv_CartAlert_Model_Observer extends Mage_Core_Model_Abstract
 
             if (Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_FIRST_ALERT_ENABLED, $store)) {
                 $firstAlertDelay = $locale->utcDate(null, $now);
-                $firstAlertDelay->subHour(
-                    Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_FIRST_ALERT_DELAY, $store)
-                );
+                if ($this->getTestMode()) {
+                    $firstAlertDelay->subMinute(
+                        Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_FIRST_ALERT_DELAY, $store)
+                    );
+                } else {
+                    $firstAlertDelay->subHour(
+                        Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_FIRST_ALERT_DELAY, $store)
+                    );
+                }
             }
 
             if (Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_SECOND_ALERT_ENABLED, $store)) {
                 $secondAlertDelay = $locale->utcDate(null, $now);
-                $secondAlertDelay->subHour(
-                    Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_SECOND_ALERT_DELAY, $store)
-                );
+                if ($this->getTestMode()) {
+                    $secondAlertDelay->subMinute(
+                        Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_SECOND_ALERT_DELAY, $store)
+                    );
+                } else {
+                    $secondAlertDelay->subHour(
+                        Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_SECOND_ALERT_DELAY, $store)
+                    );
+                }
             }
 
             if (Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_THIRD_ALERT_ENABLED, $store)) {
                 $thirdAlertDelay = $locale->utcDate(null, $now);
-                $thirdAlertDelay->subHour(
-                    Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_THIRD_ALERT_DELAY, $store)
-                );
+                if ($this->getTestMode()) {
+                    $thirdAlertDelay->subMinute(
+                        Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_THIRD_ALERT_DELAY, $store)
+                    );
+                } else {
+                    $thirdAlertDelay->subHour(
+                        Mage::getStoreConfig(Emv_CartAlert_Constants::XML_PATH_THIRD_ALERT_DELAY, $store)
+                    );
+                }
             }
 
             // determine which reminder (first, second, third) needs to be sent
@@ -306,5 +489,30 @@ class Emv_CartAlert_Model_Observer extends Mage_Core_Model_Abstract
 
         $session->unsetData('abandonment_flag');
         $session->unsetData('abandonment_date');
+    }
+
+    /**
+     * Handle Quote save after event - reset the reminder template for a registered customer
+     * so that he can receive a new reminder
+     * @param Varien_Event_Observer $observer
+     */
+    public function handleQuoteSaveAfter(Varien_Event_Observer $observer)
+    {
+        /* @var $order Mage_Sales_Model_Quote */
+        $quote = $observer->getEvent()->getQuote();
+        if ($quote instanceof Mage_Sales_Model_Quote) {
+            $session = Mage::getSingleton('customer/session');
+            // if customer is logged in and he has some products inside cart
+            if ($session->isLoggedIn() && $quote->getItemsCount() && $quote->getId()) {
+                if (!$session->getData('abandonment_reset_flag')) {
+                    try {
+                        Mage::helper('abandonment')->resetReminderForQuote($quote);
+                    } catch (Exception $e) {
+                        Mage::logException($e);
+                    }
+                    $session->setData('abandonment_reset_flag', 1);
+                 }
+             }
+        }
     }
 }

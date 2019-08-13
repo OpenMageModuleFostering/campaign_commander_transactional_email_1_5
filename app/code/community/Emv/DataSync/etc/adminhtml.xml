@@ -1,9 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
+    <menu>
+        <emailvision>
+            <children>
+                <!-- SmartFocus Data Sync menu in the back office -->
+                <datasync translate="title" module="emvdatasync">
+                    <title>Subscriber Export</title>
+                    <sort_order>999</sort_order>
+                    <children>
+                        <queue translate="title">
+                            <title>Newsletter Subscriber Queue</title>
+                            <sort_order>10</sort_order>
+                            <action>emv_datasync/dataSync</action>
+                        </queue>
+                    </children>
+                </datasync>
+            </children>
+        </emailvision>
+    </menu>
+
     <acl>
         <resources>
             <admin>
                 <children>
+                    <emailvision>
+                        <children>
+                            <datasync>
+                                <title>Subscriber Export</title>
+                                <sort_order>999</sort_order>
+                                <children>
+                                    <queue>
+                                        <title>Subscriber Queue</title>
+                                        <sort_order>10</sort_order>
+                                    </queue>
+                                </children>
+                            </datasync>
+                        </children>
+                    </emailvision>
                     <system>
                         <children>
                             <config>

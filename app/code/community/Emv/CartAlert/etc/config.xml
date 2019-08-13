@@ -1,7 +1,7 @@
 <config>
     <modules>
         <Emv_CartAlert>
-            <version>0.5.2</version>
+            <version>0.5.4</version>
         </Emv_CartAlert>
     </modules>
     <global>
@@ -46,18 +46,18 @@
         <template>
             <email>
                 <abandonment_first_alert_config_template translate="label" module="abandonment">
-                    <label>Abandoned Cart 1</label>
-                    <file>emailvision/abandonment/template1.html</file>
+                    <label>SmartFocus Abandoned Cart 1</label>
+                    <file>smartfocus/abandonment/template1.html</file>
                     <type>html</type>
                 </abandonment_first_alert_config_template>
                 <abandonment_second_alert_config_template translate="label" module="abandonment">
-                    <label>Abandoned Cart 2</label>
-                    <file>emailvision/abandonment/template2.html</file>
+                    <label>SmartFocus Abandoned Cart 2</label>
+                    <file>smartfocus/abandonment/template2.html</file>
                     <type>html</type>
                 </abandonment_second_alert_config_template>
                 <abandonment_third_alert_config_template translate="label" module="abandonment">
-                    <label>Abandoned Cart 3</label>
-                    <file>emailvision/abandonment/template3.html</file>
+                    <label>SmartFocus Abandoned Cart 3</label>
+                    <file>smartfocus/abandonment/template3.html</file>
                     <type>html</type>
                 </abandonment_third_alert_config_template>
             </email>
@@ -79,14 +79,15 @@
                     </abandonment>
                 </observers>
             </sales_order_save_after>
+            <sales_quote_save_after>
+                <observers>
+                    <abandonment>
+                        <class>abandonment/observer</class>
+                        <method>handleQuoteSaveAfter</method>
+                    </abandonment>
+                </observers>
+            </sales_quote_save_after>
         </events>
-        <layout>
-            <updates>
-                <abandonment module="Emv_CartAlert">
-                    <file>emailvision/abandonment.xml</file>
-                </abandonment>
-            </updates>
-        </layout>
     </global>
     <frontend>
         <routers>
@@ -101,7 +102,7 @@
         <layout>
             <updates>
                 <abandonment module="Emv_CartAlert">
-                    <file>emailvision/abandonment.xml</file>
+                    <file>smartfocus/abandonment.xml</file>
                 </abandonment>
             </updates>
         </layout>
@@ -141,7 +142,9 @@
     <default>
         <abandonment>
             <general>
+                <lifetime>168</lifetime>
                 <image_size>256</image_size>
+                <limit>500</limit>
                 <length>8</length>
                 <format>Alphanumeric</format>
                 <dash>4</dash>
@@ -157,4 +160,15 @@
             </third_alert_config>
         </abandonment>
     </default>
+    <admin>
+        <routers>
+            <abandonment>
+                <use>admin</use>
+                <args>
+                    <module>Emv_CartAlert_Adminhtml</module>
+                    <frontName>abandonment</frontName>
+                </args>
+            </abandonment>
+        </routers>
+    </admin>
 </config>

@@ -24,7 +24,7 @@ class Emv_Emt_Model_Resending_Rule extends Mage_Core_Model_Abstract
     /**
      * Lock file name pattern
      */
-    const LOCK_FILE_NAME_PATTERN = 'email_resending_process.lock';
+    const LOCK_FILE_NAME_PATTERN    = 'resending_error_email_process';
 
     /**
      * Is resending mechanism activated ?

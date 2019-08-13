@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Emv_Core>
-            <version>0.2.0</version>
+            <version>0.3.0</version>
         </Emv_Core>
     </modules>
     <global>
@@ -27,6 +27,9 @@
                     <account>
                         <table>emv_account</table>
                     </account>
+                    <dataprocessing_process>
+                        <table>emv_dataprocessing_process</table>
+                    </dataprocessing_process>
                 </entities>
             </emvcore_mysql4>
         </models>
@@ -54,6 +57,13 @@
                 </Emv_Core>
             </modules>
         </translate>
+        <layout>
+            <updates>
+                <emvcore>
+                    <file>smartfocus/core.xml</file>
+                </emvcore>
+            </updates>
+        </layout>
     </adminhtml>
     <admin>
         <routers>

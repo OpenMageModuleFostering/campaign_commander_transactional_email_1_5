@@ -9,48 +9,14 @@
 class Emv_DataSync_Block_Adminhtml_Form_Field_CustomerAttributes extends Mage_Core_Block_Html_Select
 {
     /**
-     * @var array
+     * Get available attributes array
+     *
+     * @return array
      */
-    protected $_customerAttributes;
-
-    /**
-     * Get customer attributes array
-     * @param string $attributeId
-     * @return NULL|Ambigous <multitype:, string>
-     */
-    protected function _getCustomerAttributes($attributeId = null)
+    protected function _getCustomerAttributes()
     {
-        if (is_null($this->_customerAttributes)) {
-            $this->_customerAttributes = array();
-            $customerEntityTypeId = Mage::getModel('eav/entity')->setType('customer')->getTypeId();
-            $customerAddressEntityTypeId = Mage::getModel('eav/entity')->setType('customer_address')->getTypeId();
-            $collection = Mage::getResourceModel('eav/entity_attribute_collection')
-                ->addFieldToFilter(
-                    'entity_type_id',
-                    array(
-                        'in' => array($customerEntityTypeId, $customerAddressEntityTypeId)
-                    )
-                );
-
-            if ($collection && $collection->count()>0) {
-                foreach ($collection as $item) {
-                    if ($item->getEntityTypeId() == $customerAddressEntityTypeId) {
-                        $this->_customerAttributes[$item->getAttributeId()] = 'customer_address_'
-                            . $item->getAttributeCode();
-                    }
-                    else {
-                        $this->_customerAttributes[$item->getAttributeId()] = $item->getAttributeCode();
-                    }
-                }
-                asort($this->_customerAttributes);
-            }
-        }
-
-        if (!is_null($attributeId)) {
-            return isset($this->_customerAttributes[$attributeId]) ? $this->_customerAttributes[$attributeId] : null;
-        }
-
-        return $this->_customerAttributes;
+        $config = Mage::getModel('emvdatasync/attributeProcessing_config');
+        return $config->toOptionArray();
     }
 
     /**
@@ -69,8 +35,8 @@ class Emv_DataSync_Block_Adminhtml_Form_Field_CustomerAttributes extends Mage_Co
     public function _toHtml()
     {
         if (!$this->getOptions()) {
-            foreach ($this->_getCustomerAttributes() as $attributeId => $attributeCode) {
-                $this->addOption($attributeId, addslashes($attributeCode));
+            foreach ($this->_getCustomerAttributes() as $type => $optionValue) {
+                $this->addOption($optionValue['value'], addslashes($optionValue['label']));
             }
         }
 

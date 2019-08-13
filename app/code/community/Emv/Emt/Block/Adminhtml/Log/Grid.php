@@ -10,6 +10,17 @@
 class Emv_Emt_Block_Adminhtml_Log_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
     /**
+     * Constructor
+     *
+     * Set main configuration of grid
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setDefaultSort('id', 'desc');
+    }
+
+    /**
      * Prepare collection for grid
      *
      * @see Mage_Adminhtml_Block_Widget_Grid::_prepareCollection()
@@ -100,7 +111,7 @@ class Emv_Emt_Block_Adminhtml_Log_Grid extends Mage_Adminhtml_Block_Widget_Grid
             )
         );
 
-        // EmailVision Template name
+        // SmartFocus Template name
         $this->addColumn('emv_name',
             array(
                 'header'=> Mage::helper('emvemt')->__('SmartFocus Template'),

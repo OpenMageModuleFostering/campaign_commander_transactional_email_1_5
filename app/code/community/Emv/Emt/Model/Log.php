@@ -19,7 +19,6 @@ class Emv_Emt_Model_Log extends Mage_Core_Model_Abstract
      * Constant for resending workflow
      */
     const RESENDING_WORKFLOW = 'resending';
-
     const RESCHEDULED = 1;
 
     /**
@@ -147,5 +146,16 @@ class Emv_Emt_Model_Log extends Mage_Core_Model_Abstract
             EmailVision_Api_Exception::INVALID_EMAIL_SENDING_PARAMETERS
                 => Mage::helper('emvemt')->__('Invalid SmartFocus Parameters')
         );
+    }
+
+    /**
+     * Clean logs created before a time limit
+     * @param int $timeLimit
+     * @return Emv_Emt_Model_Log
+     */
+    public function cleanLogs($timeLimit)
+    {
+        $this->getResource()->cleanLogs($timeLimit);
+        return $this;
     }
 }

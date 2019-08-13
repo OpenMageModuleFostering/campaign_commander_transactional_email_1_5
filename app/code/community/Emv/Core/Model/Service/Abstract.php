@@ -119,6 +119,7 @@ abstract class Emv_Core_Model_Service_Abstract extends Mage_Core_Model_Abstract
     /**
      * Check if API credential is valid. Return the token if success
      *
+     * @throws EmailVision_Api_Exception $exception api error
      * @throws Exception - in case of errors
      * @return string
      */

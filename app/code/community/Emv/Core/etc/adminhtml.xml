@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <menu>
-        <!-- EmailVision menu in the back office -->
+        <!-- SmartFocus menu in the back office -->
         <emailvision translate="title" module="adminhtml">
             <title>SmartFocus</title>
             <sort_order>999</sort_order>
@@ -11,6 +11,11 @@
                     <sort_order>10</sort_order>
                     <action>emv_core/account</action>
                 </emvcore>
+                <emvdataprocessing translate="title" module="emvcore">
+                    <title>Data Process List</title>
+                    <sort_order>15</sort_order>
+                    <action>emv_core/dataProcessing</action>
+                </emvdataprocessing>
             </children>
         </emailvision>
     </menu>
@@ -19,15 +24,19 @@
         <resources>
             <admin>
                 <children>
-                    <!-- EmailVision acl -->
+                    <!-- SmartFocus acl -->
                     <emailvision translate="title" module="emvcore">
                         <title>SmartFocus</title>
                         <sort_order>90</sort_order>
                         <children>
                             <emvcore translate="title" module="emvcore">
                                 <title>Accounts</title>
-                                <sort_order>1000</sort_order>
+                                <sort_order>100</sort_order>
                             </emvcore>
+                            <emvdataprocessing>
+                                <title>Data Process List</title>
+                                <sort_order>200</sort_order>
+                            </emvdataprocessing>
                         </children>
                     </emailvision>
                 </children>

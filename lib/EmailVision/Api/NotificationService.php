@@ -38,14 +38,14 @@ class EmailVision_Api_NotificationService extends EmailVision_Api_Common
     const CURLE_OPERATION_TIMEDOUT = 28;
 
     /**
-     * Connection time out for rest service - The number of seconds to wait while trying to connect.
+     * Connection time out for rest service - The maximum number of seconds to wait while trying to connect.
      */
-    const REST_CONNECTION_TIME = 1;
+    const REST_CONNECTION_TIME = 2;
 
     /**
      * Time out for rest service - The maximum number of seconds to allow cURL functions to execute.
      */
-    const REST_TIME_OUT = 2;
+    const REST_TIME_OUT = 3;
 
     /**
      * Convert an array of mapping into an array understandable by the webservice method sendObject

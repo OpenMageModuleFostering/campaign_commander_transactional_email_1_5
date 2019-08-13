@@ -9,11 +9,26 @@
             <show_in_website>1</show_in_website>
             <show_in_store>1</show_in_store>
             <groups>
+                <extension_status translate="label">
+                    <label>Plugin Status</label>
+                    <frontend_model>emvcore/adminhtml_config_extensionStatus</frontend_model>
+                    <sort_order>0</sort_order>
+                    <frontend_type>text</frontend_type>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                </extension_status>
                 <general translate="label comment" module="emvdatasync">
                     <label>General</label>
                     <sort_order>10</sort_order>
                     <show_in_default>1</show_in_default>
                     <fields>
+                        <test_members>
+                            <label>Allowed Numbers of Subscribers (for testing)</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </test_members>
                         <error_email_recipient translate="label">
                             <label>Error Email Recipient</label>
                             <frontend_type>text</frontend_type>
@@ -36,12 +51,44 @@
                         </error_email_template>
                     </fields>
                 </general>
-
+                <purchase_info>
+                    <label>Purchase Data Process Settings</label>
+                    <comment>Enable the automatic calculation for Customer Purchase Data</comment>
+                    <sort_order>15</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <enabled translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </enabled>
+                        <limit_size>
+                            <label>The limit of purchase information to store</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </limit_size>
+                        <frequency translate="label">
+                            <label>Frequency</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvdatasync/adminhtml_system_config_source_memberCronTime</source_model>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_purchaseProcess_cron</backend_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </frequency>
+                    </fields>
+                </purchase_info>
                 <apimember translate="label comment" module="emvdatasync">
                     <label>Triggered Export Settings</label>
                     <comment>Enable the automatic update of your members data with apimember (Member Service)</comment>
                     <sort_order>20</sort_order>
                     <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <fields>
                         <enabled translate="label">
                             <label>Enabled</label>
@@ -50,14 +97,18 @@
                             <backend_model>emvdatasync/adminhtml_system_config_backend_apiMember_enabled</backend_model>
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </enabled>
                         <account translate="label">
                             <label>SmartFocus Account</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>emvcore/system_config_source_account</source_model>
+                            <source_model>emvcore/adminhtml_system_config_source_account</source_model>
                             <backend_model>emvdatasync/adminhtml_system_config_backend_apiMember_account</backend_model>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </account>
                         <frequency translate="label">
                             <label>Frequency</label>
@@ -76,6 +127,8 @@
                     <frontend_type>text</frontend_type>
                     <sort_order>30</sort_order>
                     <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <fields>
                         <enabled translate="label">
                             <label>Enabled</label>
@@ -84,14 +137,18 @@
                             <backend_model>emvdatasync/adminhtml_system_config_backend_batchMember_enabled</backend_model>
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </enabled>
                         <account translate="label">
                             <label>SmartFocus Account</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>emvcore/system_config_source_account</source_model>
+                            <source_model>emvcore/adminhtml_system_config_source_account</source_model>
                             <backend_model>emvdatasync/adminhtml_system_config_backend_batchMember_account</backend_model>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </account>
                         <frequency translate="label">
                             <label>Frequency</label>
@@ -100,6 +157,22 @@
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                         </frequency>
+                        <day>
+                            <label>Day of the week</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvcore/adminhtml_system_config_source_cronDay</source_model>
+                            <sort_order>22</sort_order>
+                            <depends><frequency>W</frequency></depends>
+                            <show_in_default>1</show_in_default>
+                        </day>
+                        <date>
+                            <label>Date of the month</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvcore/adminhtml_system_config_source_cronDate</source_model>
+                            <sort_order>23</sort_order>
+                            <depends><frequency>M</frequency></depends>
+                            <show_in_default>1</show_in_default>
+                        </date>
                         <time translate="label">
                             <label>Start Time (in Admin timezone)</label>
                             <frontend_type>time</frontend_type>
@@ -131,20 +204,36 @@
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
                         </enabled>
-                        <time translate="label">
-                            <label>Start Time (in Admin timezone)</label>
-                            <frontend_type>time</frontend_type>
-                            <backend_model>emvdatasync/adminhtml_system_config_backend_clean_cron</backend_model>
-                            <sort_order>3</sort_order>
-                            <show_in_default>1</show_in_default>
-                        </time>
                         <frequency translate="label">
                             <label>Frequency</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_cron_frequency</source_model>
-                            <sort_order>4</sort_order>
+                            <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                         </frequency>
+                        <day>
+                            <label>Day of the week</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvcore/adminhtml_system_config_source_cronDay</source_model>
+                            <sort_order>22</sort_order>
+                            <depends><frequency>W</frequency></depends>
+                            <show_in_default>1</show_in_default>
+                        </day>
+                        <date>
+                            <label>Date of the month</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvcore/adminhtml_system_config_source_cronDate</source_model>
+                            <sort_order>23</sort_order>
+                            <depends><frequency>M</frequency></depends>
+                            <show_in_default>1</show_in_default>
+                        </date>
+                        <time translate="label">
+                            <label>Start Time (in Admin timezone)</label>
+                            <frontend_type>time</frontend_type>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_clean_cron</backend_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </time>
                     </fields>
                 </export_file_cleaning>
 
@@ -169,6 +258,8 @@
                     <frontend_type>text</frontend_type>
                     <sort_order>70</sort_order>
                     <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <fields>
                         <get_emailvision_fields translate="label comment">
                             <label>Field Synchronization</label>
@@ -177,6 +268,8 @@
                             <comment>Connect to SmartFocus apimember webservice and get the list of available fields</comment>
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </get_emailvision_fields>
                         <email_enabled translate="label">
                             <label>Synchronize with email</label>
@@ -185,6 +278,8 @@
                             <comment>If enabled, Magento newsletter subscribers will be synced by their email address. By default, the SmartFocus Entity Id will be used.</comment>
                             <sort_order>3</sort_order>
                             <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </email_enabled>
                         <emailvision_entity_id translate="label comment">
                             <label>SmartFocus Entity Id</label>
@@ -193,6 +288,8 @@
                             <comment>Default field used to link a Magento newsletter subscriber to a SmartFocus member. CLIENTURN is selected by default.</comment>
                             <sort_order>5</sort_order>
                             <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </emailvision_entity_id>
                         <attributes translate="comment">
                             <label></label>
@@ -201,6 +298,8 @@
                             <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </attributes>
                     </fields>
                 </customer_mapping>

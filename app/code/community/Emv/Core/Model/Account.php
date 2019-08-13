@@ -19,6 +19,22 @@ class Emv_Core_Model_Account extends Mage_Core_Model_Abstract
     const URL_MEMBER_SERVICE_TYPE = 'member';
 
     /**
+     * Prefix of model events names
+     *
+     * @var string
+     */
+    protected $_eventPrefix = 'emv_account';
+
+    /**
+     * Parameter name in event
+     *
+     * In observe method you can use $observer->getEvent()->getObject() in this case
+     *
+     * @var string
+     */
+    protected $_eventObject = 'emv_account';
+
+    /**
      * Constructor
      *
      * @see Varien_Object::_construct()

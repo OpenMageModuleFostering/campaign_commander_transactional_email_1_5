@@ -11,13 +11,13 @@ class Emv_DataSync_Block_Adminhtml_System_Config_GetFields extends Mage_Adminhtm
     /**
      * Set template to itself
      *
-     * @return Auguria_EmailVision_Block_Adminhtml_System_Config_GetFields
+     * @return Emv_DataSync_Block_Adminhtml_System_Config_GetFields
      */
     protected function _prepareLayout()
     {
         parent::_prepareLayout();
         if (!$this->getTemplate()) {
-            $this->setTemplate('emailvision/datasync/system/config/getfields.phtml');
+            $this->setTemplate('smartfocus/datasync/system/config/getfields.phtml');
         }
         return $this;
     }
@@ -32,5 +32,22 @@ class Emv_DataSync_Block_Adminhtml_System_Config_GetFields extends Mage_Adminhtm
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
     {
         return $this->_toHtml();
+    }
+
+    /**
+     * Get field url
+     *
+     * @return string
+     */
+    public function getGetFieldsUrl()
+    {
+        $website = $this->getRequest()->getParam('website');
+        $store   = $this->getRequest()->getParam('store');
+        $url = Mage::getSingleton('adminhtml/url')->getUrl(
+                'emv_datasync/dataSync/getMemberFields',
+                array('website'=>$website, 'store'=>$store)
+            );
+
+        return $url;
     }
 }

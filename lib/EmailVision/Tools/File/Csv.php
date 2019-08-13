@@ -120,7 +120,10 @@ class EmailVision_Tools_File_Csv
     public function fputcsv(&$handle, $fields = array(), $delimiter = ',', $enclosure = '"') {
         $str = '';
         $escapeChar = '\\';
+
         foreach ($fields as $value) {
+            // remove new line character by space
+            $value = preg_replace("/[\r\n]+/", ' ', $value);
             if (
                 strpos($value, $delimiter) !== false
                 || strpos($value, $enclosure) !== false
@@ -132,7 +135,7 @@ class EmailVision_Tools_File_Csv
                 $str2 = $enclosure;
                 $escaped = 0;
                 $len = strlen($value);
-                for ($i=0;$i<$len;$i++) {
+                for ($i=0; $i<$len; $i++) {
                     if ($value[$i] == $escapeChar) {
                         $escaped = 1;
                     } else if (!$escaped && $value[$i] == $enclosure) {

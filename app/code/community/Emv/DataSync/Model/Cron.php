@@ -4,7 +4,8 @@
  *
  * @category    Emv
  * @package     Emv_DataSync
- * @copyright   Copyright (c) 2013 SmartFocus (http://www.smartfocus.com)
+ * @author      Minh Quang VO (minhquang.vo@smartfocus.com)
+ * @copyright   Copyright (c) 2014 SmartFocus (http://www.smartfocus.com)
  */
 class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
 {
@@ -71,7 +72,6 @@ class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
     public function batchMemberExport()
     {
         $helper = Mage::helper('emvdatasync');
-        $exportDone = false;
 
         if (!Mage::getStoreConfigFlag(self::XML_PATH_EMAILVISION_BATCH_ENABLED)) {
             return $this;
@@ -80,6 +80,8 @@ class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
         $this->_errors = array();
 
         $startRunTime = $helper->getFormattedGmtDateTime();
+        // !!! it's very important to set a custom error handler in order to remove lock file in case of fatal error
+        Mage::helper('emvcore')->setSmartFocusErrorHandler();
 
         $processErrors = array();
         $createdLock = false;
@@ -87,14 +89,13 @@ class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
             // check and create lock
             if (!$helper->checkLockFile()) {
                 $service = Mage::getModel('emvdatasync/service_batchMember');
-                $account = Mage::helper('emvdatasync')->getEmvAccountForStore('batch');
-                $service->setAccount($account);
 
                 // create lock file => do not allow several process at the same time
                 $helper->createLockFile('Batch member synchronization cron process running at GMT timezone ' . $startRunTime);
                 $createdLock = true;
 
-                $exportDone = $service->massExportCustomers();
+                $service->init();
+                $service->run();
 
                 // If non-blocking errors occurs
                 $processErrors = $service->getErrors();
@@ -121,19 +122,20 @@ class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
             }
         }
 
+        // reset to Magento error handler
+        Mage::helper('emvcore')->resetErrorHandler();
+
         // if some errors occur, we should inform the client
         if (count($this->_errors)) {
             $this->_sendCustomerExportErrors();
         }
 
-        if ($exportDone) {
-            $config = Mage::getModel('core/config');
-            $config->saveConfig(
-                'emvdatasync/last_successful_synchronization/customers',
-                Mage::helper('emvdatasync')->getFormattedGmtDateTime()
-            );
-            $config->removeCache();
-        }
+        $config = Mage::getModel('core/config');
+        $config->saveConfig(
+            'emvdatasync/last_successful_synchronization/customers',
+            Mage::helper('emvdatasync')->getFormattedGmtDateTime()
+        );
+        $config->removeCache();
 
         return $this;
     }
@@ -154,6 +156,8 @@ class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
 
         // gmt date time
         $startRunTime = $helper->getFormattedGmtDateTime();
+        // !!! it's very important to set a custom error handler in order to remove lock file in case of fatal error
+        Mage::helper('emvcore')->setSmartFocusErrorHandler();
 
         $processErrors = array();
         $createdLock = false;
@@ -161,8 +165,6 @@ class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
             // check and create lock
             if (!$helper->checkLockFile()) {
                 $service = Mage::getModel('emvdatasync/service_member');
-                $account = Mage::helper('emvdatasync')->getEmvAccountForStore();
-                $service->setAccount($account);
 
                 // create lock file => do not allow several process at the same time
                 $helper->createLockFile('Member synchronization cron process running at GMT timezone ' . $startRunTime);
@@ -178,11 +180,99 @@ class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
                 }
             }
         } catch (Exception $e) {
-            $this->_errors[] = 'Errors occured while running memberExport (memberApi cron), at GMT timezone ' . $startRunTime;
+            $this->_errors[] = 'Errors occured while running memberExport (memberApi cron), at GMT timezone '
+                . $startRunTime;
             $this->_errors[] = $e->getMessage();
             foreach ($processErrors as $error) {
                 $this->_errors[] = $error;
             }
+        }
+
+        // if lock is created, need to delete it
+        if ($createdLock) {
+            try {
+                $helper->removeLockFile();
+            } catch (Exception $e) {
+                $this->_errors[] = $e->getMessage();
+            }
+        }
+
+        Mage::helper('emvcore')->resetErrorHandler();
+        // if some errors occur, we should inform the client
+        if (count($this->_errors)) {
+            $this->_sendCustomerExportErrors();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Cron method to clean files moved in uploaded folder after exporting customers,
+     *
+     * @return Emv_DataSync_Model_Cron
+     */
+    public function cleanEmailVisionFiles()
+    {
+        if (!Mage::getStoreConfigFlag(self::XML_PATH_EMAILVISION_CLEAN_ENABLED)) {
+            return $this;
+        }
+
+        // everything is in GMT date time
+        $startRunTime = Mage::helper('emvdatasync')->getFormattedGmtDateTime();
+        $createdLock = false;
+        $helper = Mage::helper('emvdatasync');
+
+        $this->_errors = array();
+        try {
+            // Check folders in case this method is called before any export
+            $helper->checkAndCreatFolder();
+
+            // check and create lock
+            if (!$helper->checkLockFile()) {
+                // create lock file => do not allow several process at the same time
+                $helper->createLockFile('Cleaning file cron process running at GMT timezone ' . $startRunTime);
+                $createdLock = true;
+
+                // open uploaded folder
+                $dirHandler = @opendir(
+                    Mage::getBaseDir(Emv_Core_Helper_Data::BASE_CONTAINER)
+                    . DS . Emv_Core_Helper_Data::BASE_WORKING_DIR
+                    . DS . Emv_Core_Helper_Data::UPLOADED_FILE_DIR
+                );
+                while ($filename = readdir($dirHandler)) {
+                    // Delete any file in uploaded folder
+                    if ($filename != '.' && $filename != '..') {
+                        @unlink(
+                            Mage::getBaseDir(Emv_Core_Helper_Data::BASE_CONTAINER)
+                            . DS . Emv_Core_Helper_Data::BASE_WORKING_DIR
+                            . DS . Emv_Core_Helper_Data::UPLOADED_FILE_DIR
+                            . DS . $filename
+                        );
+                    }
+                }
+                @closedir($dirHandler);
+
+                // open export folder
+                $dirHandler = @opendir(
+                    Mage::getBaseDir(Emv_Core_Helper_Data::BASE_CONTAINER)
+                    . DS . Emv_Core_Helper_Data::BASE_WORKING_DIR
+                );
+                while ($filename = readdir($dirHandler)) {
+                    $path = Mage::getBaseDir(Emv_Core_Helper_Data::BASE_CONTAINER)
+                        . DS . Emv_Core_Helper_Data::BASE_WORKING_DIR
+                        . DS . $filename
+                    ;
+                    // Delete any file in exporte folder
+                    if ($filename != '.' && $filename != '..' && is_file($path)) {
+                        @unlink($path);
+                    }
+                }
+                @closedir($dirHandler);
+            }
+        } catch (Exception $e) {
+            $this->_errors[] = 'Errors occured while removing exported files (cleanEmailVisionFiles cron), at GMT timezone '
+                . $startRunTime;
+            $this->_errors[] = $e->getMessage();
         }
 
         // if lock is created, need to delete it
@@ -203,49 +293,54 @@ class Emv_DataSync_Model_Cron extends Mage_Core_Model_Abstract
     }
 
     /**
-     * Cron method to clean files moved in uploaded folder after exporting customers
+     * Cron method to proceed purchase information
      *
      * @return Emv_DataSync_Model_Cron
      */
-    public function cleanEmailVisionFiles()
+    public function startPurchaseProcess()
     {
-        if (!Mage::getStoreConfigFlag(self::XML_PATH_EMAILVISION_CLEAN_ENABLED)) {
-            return $this;
-        }
-
         // everything is in GMT date time
         $startRunTime = Mage::helper('emvdatasync')->getFormattedGmtDateTime();
+        $createdLock = false;
+        $helper = Mage::helper('emvdatasync');
 
+        $processErrors = array();
         $this->_errors = array();
-
         try {
             // Check folders in case this method is called before any export
-            Mage::helper('emvdatasync')->checkAndCreatFolder();
+            $helper->checkAndCreatFolder();
 
-            // remove uploaded file
-            $dirHandler = @opendir(Mage::getBaseDir('export'). DS . 'emailvision' . DS . 'uploaded');
-            while($filename = readdir($dirHandler)) {
-                // Delete any file in uploaded folder
-                if ($filename != '.' && $filename != '..') {
-                    unlink(Mage::getBaseDir('export'). DS . 'emailvision' . DS . 'uploaded'. DS . $filename);
+            // check and create lock
+            if (!$helper->checkLockFile()) {
+                // create lock file => do not allow several process at the same time
+                $helper->createLockFile('Purchase information cron process running at GMT timezone ' . $startRunTime);
+                $createdLock = true;
+
+                $processErrors = Mage::getModel('emvdatasync/service_dataProcess')->prepareList();
+                if (!empty($processErrors)) {
+                    throw (new Exception('Check below for more details:'));
                 }
             }
-            @closedir($dirHandler);
-
-            // remove emailvision export folder
-            $dirHandler = @opendir(Mage::getBaseDir('export'). DS . 'emailvision' );
-            while($filename = readdir($dirHandler)) {
-                $path = Mage::getBaseDir('export'). DS . 'emailvision' . DS . $filename;
-                // Delete any file in uploaded folder
-                if ($filename != '.' && $filename != '..' && is_file($path)) {
-                    unlink($path);
-                }
-            }
-            @closedir($dirHandler);
         } catch (Exception $e) {
-            $this->_errors[] = 'Errors occured while removing exported files (cleanEmailVisionFiles cron), at GMT timezone '
+            $this->_errors[] = 'Errors occured while preparing purchase information, at GMT timezone '
                 . $startRunTime;
             $this->_errors[] = $e->getMessage();
+            foreach ($processErrors as $error) {
+                $this->_errors[] = $error;
+            }
+        }
+
+        // if lock is created, need to delete it
+        if ($createdLock) {
+            try {
+                $helper->removeLockFile();
+            } catch (Exception $e) {
+                $this->_errors[] = $e->getMessage();
+            }
+        }
+
+        // if some errors occur, we should inform the client
+        if (count($this->_errors)) {
             $this->_sendCustomerExportErrors();
         }
 

@@ -5,6 +5,7 @@
             <version>0.4.1</version>
         </Emv_Emt>
     </modules>
+
     <global>
         <blocks>
             <emvemt>
@@ -47,6 +48,8 @@
                 </entities>
             </emvemt_mysql4>
         </models>
+        
+        <!-- Resource Defintion -->
         <resources>
             <emvemt_setup>
                 <setup>
@@ -55,7 +58,21 @@
                 </setup>
             </emvemt_setup>
         </resources>
+        
+        <!-- Event observers -->
+        <events>
+            <emv_account_delete_after>
+                <observers>
+                    <emailvision_on_account_delete>
+                        <type>singleton</type>
+                        <class>emvemt/observer</class>
+                        <method>onAccountDelete</method>
+                    </emailvision_on_account_delete>
+                </observers>
+            </emv_account_delete_after>
+        </events>
     </global>
+
     <adminhtml>
         <translate>
             <modules>
@@ -67,6 +84,7 @@
             </modules>
         </translate>
     </adminhtml>
+
     <admin>
         <routers>
             <emvemt>
@@ -78,6 +96,7 @@
             </emvemt>
         </routers>
     </admin>
+
     <crontab>
         <jobs>
             <emailvision_process_error_sending_emails>
@@ -88,6 +107,11 @@
                     <model>emvemt/cron::processErrorSendingEmails</model>
                 </run>
             </emailvision_process_error_sending_emails>
+            <emailvision_process_sending_log_cleanning>
+                <run>
+                    <model>emvemt/cron::cleanLogs</model>
+                </run>
+            </emailvision_process_sending_log_cleanning>
         </jobs>
     </crontab>
     <default>
@@ -99,6 +123,12 @@
                 <third_delay>120</third_delay>
                 <fourth_delay>240</fourth_delay>
             </resending_mechanism>
+            <log_cleanning>
+                <enabled>0</enabled>
+                <time/>
+                <frequency>D</frequency>
+                <keeping_days>30</keeping_days>
+            </log_cleanning>
         </emvemt>
     </default>
 </config>

@@ -713,4 +713,27 @@ class Emv_Emt_Adminhtml_TemplateController extends Mage_Adminhtml_Controller_Act
         echo $preview;
     }
 
+    /**
+     * Action to validate SmartFocus account
+     */
+    public function validateTemplateAction()
+    {
+        $accountId = $this->getRequest()->getParam('account_id');
+        $messageReturn = array('error' => array(), 'information' => array());
+
+        if ($accountId) {
+            try {
+                Mage::helper('emvemt/emvtemplate')->validateEmvAccount($accountId);
+                $messageReturn['information'][] = Mage::helper('emvemt')
+                    ->__('Your account is correctly set up and ready to send emails');
+            } catch (Exception $e) {
+                $messageReturn['error'][] = $e->getMessage();
+            }
+        } else {
+            $messageReturn['error'][] = Mage::helper('emvemt')
+                ->__('Please select a SmartFocus account !');
+        }
+
+        $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($messageReturn));
+    }
 }

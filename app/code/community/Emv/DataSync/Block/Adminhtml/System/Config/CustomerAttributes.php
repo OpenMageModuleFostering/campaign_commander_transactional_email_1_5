@@ -21,7 +21,7 @@ class Emv_DataSync_Block_Adminhtml_System_Config_CustomerAttributes
 
     public function __construct()
     {
-        $this->setTemplate('emailvision/datasync/system/config/form/field/array.phtml');
+        $this->setTemplate('smartfocus/datasync/system/config/form/field/array.phtml');
         parent::__construct();
     }
 

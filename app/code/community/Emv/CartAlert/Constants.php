@@ -4,10 +4,14 @@
  *
  * @category    Emv
  * @package     Emv_CartAlert
+ * @author      Minh Quang VO (minhquang.vo@smartfocus.com)
  * @copyright   Copyright (c) 2013 SmartFocus (http://www.smartfocus.com)
  */
 interface Emv_CartAlert_Constants
 {
+    const XML_PATH_TEST_MODE_ENABLED     = 'abandonment/general/test_mode';
+    const XML_PATH_LIFETIME              = 'abandonment/general/lifetime';
+
     const XML_PATH_FIRST_ALERT_ENABLED   = 'abandonment/first_alert_config/enabled';
     const XML_PATH_FIRST_ALERT_TEMPLATE  = 'abandonment/first_alert_config/template';
     const XML_PATH_FIRST_ALERT_DELAY     = 'abandonment/first_alert_config/delay';
@@ -28,6 +32,7 @@ interface Emv_CartAlert_Constants
     const XML_PATH_COUPON_CODE_SUFFIX = 'abandonment/general/suffix';
     const XML_PATH_COUPON_CODE_DASH   = 'abandonment/general/dash';
 
+    const NONE_FLAG                      = 'none';
     const FIRST_ALERT_FLAG               = 'first_alert';
     const FIRST_ALERT_REMINDER_ID        = 1;
     const SECOND_ALERT_FLAG              = 'second_alert';

@@ -1,9 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
+    <menu>
+        <!-- EmailVision menu in the back office -->
+        <emailvision>
+            <children>
+                <abandonment translate="title" module="abandonment">
+                    <title>Abandoned Carts</title>
+                    <sort_order>50</sort_order>
+                    <children>
+                        <list translate="title" module="abandonment">
+                            <title>List</title>
+                            <sort_order>10</sort_order>
+                            <action>abandonment/abandonment/list</action>
+                        </list>
+                    </children>
+                </abandonment>
+            </children>
+        </emailvision>
+    </menu>
+
     <acl>
         <resources>
             <admin>
                 <children>
+                    <emailvision>
+                        <children>
+                            <abandonment translate="title" module="abandonment">
+                                <title>Abandonment Carts</title>
+                                <children>
+                                    <list>
+                                        <title>List</title>
+                                        <sort_order>10</sort_order>
+                                    </list>
+                                </children>
+                            </abandonment>
+                        </children>
+                    </emailvision>
                     <system>
                         <children>
                             <config>

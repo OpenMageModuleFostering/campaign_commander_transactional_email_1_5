@@ -3,7 +3,7 @@
  * This controller is used to manage all account view (grid list, edit/new form)
  *
  * @category    Emv
- * @package     Emv_Emt
+ * @package     Emv_Core
  * @copyright   Copyright (c) 2013 SmartFocus (http://www.smartfocus.com)
  * @author Minh Quang VO <minhquang.vo@smartfocus.com>
  */

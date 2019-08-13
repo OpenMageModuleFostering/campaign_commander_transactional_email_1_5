@@ -9,11 +9,20 @@
             <show_in_website>1</show_in_website>
             <show_in_store>1</show_in_store>
             <groups>
+                <extension_status translate="label">
+                    <label>Plugin Status</label>
+                    <frontend_model>emvemt/adminhtml_config_extensionStatus</frontend_model>
+                    <sort_order>1</sort_order>
+                    <frontend_type>text</frontend_type>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                </extension_status>
                 <transactional_service translate="label" module="emvemt">
                     <label>General</label>
                     <expanded>1</expanded>
                     <frontend_type>text</frontend_type>
-                    <sort_order>0</sort_order>
+                    <sort_order>10</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -21,13 +30,20 @@
                         <account translate="label">
                             <label>SmartFocus Account</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>emvcore/system_config_source_account</source_model>
+                            <source_model>emvcore/adminhtml_system_config_source_account</source_model>
                             <backend_model>emvemt/adminhtml_system_config_backend_account</backend_model>
                             <sort_order>0</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </account>
+                        <validate_account translate="label">
+                            <frontend_model>emvemt/adminhtml_system_config_validateAccount</frontend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </validate_account>
                         <log_enabled translate="label" module="emvemt">
                             <label>Activate Sending Log</label>
                             <frontend_type>select</frontend_type>
@@ -50,6 +66,7 @@
                         </parameter_log_enabled>
                     </fields>
                 </transactional_service>
+
                 <resending_mechanism translate="label" module="emvemt">
                     <label>Resending Mechanism Configuration</label>
                     <expanded>1</expanded>
@@ -89,8 +106,64 @@
                         </fourth_delay>
                     </fields>
                 </resending_mechanism>
+                
+                <log_cleanning translate="label" module="emvemt">
+                    <label>Log Cleanning Configuration</label>
+                    <expanded>1</expanded>
+                    <sort_order>40</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <fields>
+                        <keeping_days translate="label" module="emvemt">
+                            <label>Limit logging days</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>How many days will sending logs be kept ?</comment>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </keeping_days>
+                        <enabled translate="label" module="emvemt">
+                            <label>Activate Log Cleanning Mechanism</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </enabled>
+                        <frequency translate="label">
+                            <label>Frequency</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_cron_frequency</source_model>
+                            <backend_model>emvemt/adminhtml_system_config_backend_log_cron</backend_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </frequency>
+                        <day>
+                            <label>Day of the week</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvcore/adminhtml_system_config_source_cronDay</source_model>
+                            <sort_order>65</sort_order>
+                            <depends><frequency>W</frequency></depends>
+                            <show_in_default>1</show_in_default>
+                        </day>
+                        <date>
+                            <label>Date of the month</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvcore/adminhtml_system_config_source_cronDate</source_model>
+                            <sort_order>70</sort_order>
+                            <depends><frequency>M</frequency></depends>
+                            <show_in_default>1</show_in_default>
+                        </date>
+                        <time translate="label">
+                            <label>Start Time</label>
+                            <frontend_type>time</frontend_type>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </time>
+                    </fields>
+                </log_cleanning>
             </groups>
         </emvemt>
     </sections>
 </config>
-

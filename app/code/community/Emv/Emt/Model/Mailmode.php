@@ -39,9 +39,9 @@ class Emv_Emt_Model_Mailmode extends Mage_Core_Model_Abstract
     public static function getMailModesAndLabels()
     {
         return array(
-            self::CLASSIC_MODE =>  Mage::helper('emvemt')->__('classic'),
-            self::EMV_CREATE => Mage::helper('emvemt')->__('emv create'),
-            self::EMV_SEND => Mage::helper('emvemt')->__('emv send'),
+            self::CLASSIC_MODE =>  Mage::helper('emvemt')->__('Classic'),
+            self::EMV_CREATE => Mage::helper('emvemt')->__('SmartFocus Template'),
+            self::EMV_SEND => Mage::helper('emvemt')->__('SmartFocus Routage'),
         );
     }
 

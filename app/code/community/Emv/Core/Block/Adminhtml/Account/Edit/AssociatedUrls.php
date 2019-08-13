@@ -19,7 +19,7 @@ class Emv_Core_Block_Adminhtml_Account_Edit_AssociatedUrls extends Mage_Adminhtm
      */
     public function __construct()
     {
-        $this->setTemplate('emailvision/account/associated_urls.phtml');
+        $this->setTemplate('smartfocus/account/associated_urls.phtml');
     }
 
     /**

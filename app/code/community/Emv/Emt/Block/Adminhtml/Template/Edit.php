@@ -11,7 +11,7 @@ class Emv_Emt_Block_Adminhtml_Template_Edit extends Mage_Adminhtml_Block_Widget
 {
     public function __construct()
     {
-        $this->setTemplate('emailvision/emt/template/edit.phtml');
+        $this->setTemplate('smartfocus/emt/template/edit.phtml');
         $this->setId('emv_email_template');
     }
 
@@ -27,8 +27,9 @@ class Emv_Emt_Block_Adminhtml_Template_Edit extends Mage_Adminhtml_Block_Widget
             $head->addItem('js', 'prototype/window.js')
                 ->addItem('js_css', 'prototype/windows/themes/default.css')
                 ->addCss('lib/prototype/windows/themes/magento.css')
-                ->addCss('campaign-commander.css')
-                ->addItem('js', 'mage/adminhtml/variables.js');
+                ->addCss('smartfocus.css')
+                ->addItem('js', 'mage/adminhtml/variables.js')
+                ->addItem('js_css', 'prototype/windows/themes/magento.css');
         }
 
         // back button - get back to grid menu

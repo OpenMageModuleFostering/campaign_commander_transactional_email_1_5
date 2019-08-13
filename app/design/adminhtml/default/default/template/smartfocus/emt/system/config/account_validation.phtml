@@ -1,0 +1,96 @@
+
+<?php
+    $checkUrl = Mage::getSingleton('adminhtml/url')->getUrl('emvemt/template/validateTemplate');
+?>
+
+    <div id="messages-connection" style="display: none;">
+        <ul class="messages">
+            <li class="error-msg error-connection">
+            </li>
+            <li class="success-msg success-connection">
+            </li>
+        </ul>
+    </div>
+    <button id="validate-button" class="scalable" type="button">
+        <span id="validation_result"><?php echo Mage::helper('emvemt')->__('Check and Configure your SmartFocus Account') ?></span>
+    </button>
+
+
+<script type="text/javascript">
+//<![CDATA[
+
+var Emv_Check_Account = Class.create();
+Emv_Check_Account.prototype = {
+    initialize : function()
+    {
+        this.loading = false;
+        this.loader = new varienLoader(false);
+        this.checkUrl = "<?php echo $checkUrl ?>";
+
+        this.bindCheckAccountButton();
+    },
+    bindCheckAccountButton : function()
+    {
+        var button = $('validate-button');
+        Event.observe(button, 'click', this.checkAccount.bind(this));
+    },
+    checkAccount : function(event)
+    {
+        if (this.loading == false) {
+            this.loading = true;
+            var params = {
+                    'account_id'  : $('emvemt_transactional_service_account').value
+                };
+            this.loader.load(this.checkUrl, params, this.proceedMessageReturn.bind(this));
+        }
+    },
+    proceedMessageReturn : function(serverResponse) {
+        this.loading = false;
+        this.hideAndRemoveMessage();
+
+        if (serverResponse) {
+            data = eval('(' + serverResponse + ')');
+            if (typeof(data.error) == 'object' && data.error.length >= 1) {
+                var html = this.prepareHtmlMessage(data.error);
+                $$('.error-connection').first().innerHTML = html;
+            }
+            if (typeof(data.information) == 'object' && data.information.length >= 1) {
+                var html = this.prepareHtmlMessage(data.information);
+                $$('.success-connection').first().innerHTML = html;
+            }
+            this.showMessage();
+        }
+    },
+    prepareHtmlMessage : function(messages)
+    {
+        html = '<ul>';
+        for (var i = 0; i < messages.length; i++) {
+            html += '<li><span>' + messages[i] + '</span></li>';
+        }
+        html += '</ul>';
+
+        return html;
+    },
+    hideAndRemoveMessage : function()
+    {
+        $$('.error-connection').first().innerHTML = "";
+        $$('.error-connection').first().hide();
+        $$('.success-connection').first().innerHTML = "";
+        $$('.success-connection').first().hide();
+
+        $('messages-connection').hide();
+    },
+    showMessage : function()
+    {
+        if ($$('.error-connection').first().innerHTML != "") {
+            $$('.error-connection').first().show();
+        }
+        if ($$('.success-connection').first().innerHTML != "") {
+        	$$('.success-connection').first().show();
+        }
+        $('messages-connection').show();
+    }
+}
+checkAccountApply = new Emv_Check_Account();
+//]]>
+</script>

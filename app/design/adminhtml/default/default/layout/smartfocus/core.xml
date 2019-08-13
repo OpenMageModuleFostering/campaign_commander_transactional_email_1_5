@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+    <default translate="label" module="page">
+        <reference name="head">
+            <action method="addCss"><name>smartfocus.css</name></action>
+        </reference>
+    </default>
+</layout>

@@ -1,0 +1,60 @@
+v3.1.0 - the 15th May 2014 ********************************************************************
+[General]
+#33 - Feature - Add new UI menu to display the global version of the extension and prerequisite status
+#45 - Enhancement - Enhance cron job scheduling interface
+#46 - Enhancement - Enhance lock mechanism for cron processes
+
+[Data Sync]
+#27 - Feature - DataSync should allow email sync.
+#35 - Enhancement - Simplify the verifications
+#38 - Feature - Add multi-store support
+#39 - Enhancement - Enhance Mapping Zone 
+#42 - Bug - The performance parameter (Max number of fetched members per page) is not correctly taken in account.
+#44 - Bug - When no mapping is setup, a fatal error has been raised.
+#55 - Feature - Add new menu to show the progress of synchronization.
+#56 - Feature - Add Customer Shipping Address in the mapping list.
+#58 - Feature - Add new menu to show the subscriber queue to export.
+#59 - Feature - Add new column "queued" inside newsletter_subscriber table in order to manage the subscriber queue to export 
+#66 - Feature - Add calculated purchase information by customer v1  
+    For this version, only calculated purchase information is available :
+        * Used Email Addresses
+        * Base Currency Code
+        * List of Order #
+        * Total Orders Purchased
+        * Total Items Purchased
+        * Average Items Purchased per Order
+        * Total Order Amount Spent
+        * Average Order Amount Spent per Purchase
+        * Total Discount Amount
+        * Average Discount Amount per Purchase
+        * Total Shipping Amount
+        * Average Shipping Amount per Purchase
+        * Minimum Purchase Total
+        * Maximum Purchase Total
+        * First Purchase
+        * Last Purchase
+        * Minimum Items Purchased
+        * Maximum Items Purchased
+        * Shipping Methods
+        * Payment Methods
+        * Used Coupons
+        * Total Purchases With Discount
+
+[NMP]
+#28 - Feature - Add new button to verify the generic template when creating or modify a smartfocus account.
+#37 - Feature - Add new process to clean up the sending log + rescheduling log 
+#41 - Bug - When deleting a SmartFocus account, delete also the temporary sending email template 
+#43 - Enhancement - The sending logs should be sorted from newer to older 
+#62 - Enhancement - Change default sending mode name
+#67 - Enhancement - Increase the default connection time out and the execution time out 
+
+[Abandoned Carts]
+#30 - Enhancement - Performance issue for treating more than 8000 abandoned carts at the same time
+#52 - Enhancement - Change shopping cart rule from text field to select
+#57 - Feature - Add test mode and life time parameters
+#61 - Enhancement - add date/time into abandonment table 
+#63 - Bug - When a registered customer comes back and modifies his cart, the reminder process does not restart. 
+#64 - Feature - New menu to display a list of abandoned cart reminder information
+#64 - Enhancement - add correct index into the three tables (abandonment, stats_email_abandonment_sent, emv_order_flag) 
+
+***********************************************************************************************
