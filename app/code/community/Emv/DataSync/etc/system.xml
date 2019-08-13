@@ -1,0 +1,210 @@
+<config>
+    <sections>
+        <emvdatasync translate="label" module="emvdatasync">
+            <label>Subscriber Export</label>
+            <tab>emailvision</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>30</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <general translate="label comment" module="emvdatasync">
+                    <label>General</label>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <fields>
+                        <error_email_recipient translate="label">
+                            <label>Error Email Recipient</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </error_email_recipient>
+                        <error_email_sender translate="label">
+                            <label>Error Email Sender</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_email_identity</source_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </error_email_sender>
+                        <error_email_template translate="label">
+                            <label>Error Email Template</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_email_template</source_model>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </error_email_template>
+                    </fields>
+                </general>
+
+                <apimember translate="label comment" module="emvdatasync">
+                    <label>Triggered Export Settings</label>
+                    <comment>Enable the automatic update of your members data with apimember (Member Service)</comment>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <fields>
+                        <enabled translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_apiMember_enabled</backend_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </enabled>
+                        <account translate="label">
+                            <label>SmartFocus Account</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvcore/system_config_source_account</source_model>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_apiMember_account</backend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </account>
+                        <frequency translate="label">
+                            <label>Frequency</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvdatasync/adminhtml_system_config_source_memberCronTime</source_model>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_apiMember_cron</backend_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </frequency>
+                    </fields>
+                </apimember>
+
+                <batchmember translate="label comment" module="emvdatasync">
+                    <label>Scheduled Export Settings</label>
+                    <comment>Enable the automatic update of your members data with apibatchmember (Batch Member Service)</comment>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>30</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <fields>
+                        <enabled translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_batchMember_enabled</backend_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </enabled>
+                        <account translate="label">
+                            <label>SmartFocus Account</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvcore/system_config_source_account</source_model>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_batchMember_account</backend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </account>
+                        <frequency translate="label">
+                            <label>Frequency</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_cron_frequency</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </frequency>
+                        <time translate="label">
+                            <label>Start Time (in Admin timezone)</label>
+                            <frontend_type>time</frontend_type>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_batchMember_cron</backend_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </time>
+                        <performance translate="label comment">
+                            <label>Max number of fetched members per page</label>
+                            <comment>Allows you to reduce the number of members loaded while building file. Default value should be quite balanced, if your server has limited RAM resources, you can lower it until encountering no more troubles</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </performance>
+                    </fields>
+                </batchmember>
+
+                <export_file_cleaning translate="label comment" module="emvdatasync">
+                    <label>Cleaning of generated files</label>
+                    <comment>Note: When using scheduled exports, the module will generate csv files. It's recommended to enable the file cleaning to delete them regularly</comment>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>40</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <fields>
+                        <enabled translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </enabled>
+                        <time translate="label">
+                            <label>Start Time (in Admin timezone)</label>
+                            <frontend_type>time</frontend_type>
+                            <backend_model>emvdatasync/adminhtml_system_config_backend_clean_cron</backend_model>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </time>
+                        <frequency translate="label">
+                            <label>Frequency</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_cron_frequency</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </frequency>
+                    </fields>
+                </export_file_cleaning>
+
+                <last_successful_synchronization translate="label" module="emvdatasync">
+                    <label>Last Successful Synchronization</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>60</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <fields>
+                        <customers translate="label">
+                            <label>Scheduled Customer Export (in Admin timezone)</label>
+                            <frontend_type>text</frontend_type>
+                            <frontend_model>emvdatasync/adminhtml_system_config_date</frontend_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </customers>
+                    </fields>
+                </last_successful_synchronization>
+
+                <customer_mapping module="emvdatasync">
+                    <label>Attribute Mapping</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>70</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <fields>
+                        <get_emailvision_fields translate="label comment">
+                            <label>Field Synchronization</label>
+                            <button_label>Run export</button_label>
+                            <frontend_model>emvdatasync/adminhtml_system_config_getFields</frontend_model>
+                            <comment>Connect to SmartFocus apimember webservice and get the list of available fields</comment>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </get_emailvision_fields>
+                        <email_enabled translate="label">
+                            <label>Synchronize with email</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment>If enabled, Magento newsletter subscribers will be synced by their email address. By default, the SmartFocus Entity Id will be used.</comment>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </email_enabled>
+                        <emailvision_entity_id translate="label comment">
+                            <label>SmartFocus Entity Id</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>emvdatasync/adminhtml_system_config_source_fields</source_model>
+                            <comment>Default field used to link a Magento newsletter subscriber to a SmartFocus member. CLIENTURN is selected by default.</comment>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </emailvision_entity_id>
+                        <attributes translate="comment">
+                            <label></label>
+                            <comment>Warning: SmartFocus fields must not be mapped more than one time, including the entity field id. You can map any Magento field with as many disctinct SmartFocus ones as you want</comment>
+                            <frontend_model>emvdatasync/adminhtml_system_config_customerAttributes</frontend_model>
+                            <backend_model>adminhtml/system_config_backend_serialized_array</backend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                        </attributes>
+                    </fields>
+                </customer_mapping>
+            </groups>
+        </emvdatasync>
+    </sections>
+</config>

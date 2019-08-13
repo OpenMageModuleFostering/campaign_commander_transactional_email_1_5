@@ -1,0 +1,171 @@
+<?php
+    /* @var $this Emv_Core_Block_Adminhtml_Account_Edit_AssociatedUrls */
+    // add url button
+?>
+<button id="<?php echo $this->getAddId() ?>" class="scalable add" type="button">
+    <span><?php echo Mage::helper('emvcore')->__('Add')?></span>
+</button>
+
+<?php
+    // retreive account
+    $account = $this->getData('account');
+    $emvUrls = (is_array($account->getEmvUrls())) ? $account->getEmvUrls() : array();
+    $index = 0;
+    $usedService = array();
+
+    $servicesAndLabels = Emv_Core_Model_Account::getUrlTypesAndLabels();
+    // build used urls
+?>
+<div class="entry-edit custom-options bundle" id="<?php echo $this->getWebserviceDivId()?>">
+    <?php foreach($emvUrls as $type => $urlData) : ?>
+        <div id="service<?php echo $index; ?>" class="option-box">
+                <table class="option-header">
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th class="opt-type"><?php echo Mage::helper('emvcore')->__('Service')?></th>
+                            <th class="opt-req"><?php echo Mage::helper('emvcore')->__('Url')?> <span class="required">*</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>&nbsp;
+                                <button onclick="emvAccount.deleteService(<?php echo $index; ?>)"
+                                    id="remove<?php echo $index; ?>"
+                                    title="<?php echo Mage::helper('emvcore')->__('Remove')?>" type="button" class="scalable delete" style=""
+                                >
+                                     <span><?php echo Mage::helper('emvcore')->__('Remove')?></span>
+                                </button>
+                             </td>
+                             <td class="value">
+                                 <input type="text"
+                                     value="<?php echo isset($servicesAndLabels[$type]) ?  $servicesAndLabels[$type] : 'service' ?>"
+                                     disabled="disabled" class="input-text required-entry webservice-type"
+                                 />
+                             </td>
+                             <td class="value">
+                                 <input type="text" class="input-text required-entry validate-url-emv"
+                                     name="emv_urls[<?php echo $type ?>][url]"
+                                     value="<?php echo $urlData['url'] ?>"
+                                 />
+                              </td>
+                          </tr>
+                    </tbody>
+                </table>
+        </div>
+        <?php
+            $usedService[$index] = array(
+                'value' => $type,
+                'text'  => isset($servicesAndLabels[$type]) ?  $servicesAndLabels[$type] : 'service'
+            );
+            $index++;
+        ?>
+    <?php endforeach;?>
+</div>
+
+<script type="text/javascript">
+// service template
+var serviceTemplate = '<div class="option-box" id="service#{_id}">'
+    + '<table class="option-header">'
+    + '    <thead>'
+    + '         <tr>'
+    + '             <th>&nbsp;</th>'
+    + '             <th class="opt-type"><?php echo Mage::helper('emvcore')->__('Service')?></th>'
+    + '             <th class="opt-req"><?php echo Mage::helper('emvcore')->__('Url')?> <span class="required">*</span></th>'
+    + '         </tr>'
+    + '    </thead>'
+    + '    <tbody>'
+    + '        <tr>'
+    + '            <td>&nbsp;'
+    + '                <button style="" class="scalable delete" type="button" title="Remove" id="remove#{_id}" onClick="emvAccount.deleteService(#{_id})">'
+    + '                     <span><?php echo Mage::helper('emvcore')->__('Remove')?></span>'
+    + '                </button>'
+    + '             </td>'
+    + '             <td class="value">'
+    + '                 <input type="text" class="input-text required-entry webservice-type" disabled="disabled" value="#{_text}" />'
+    + '             </td>'
+    + '             <td class="value">'
+    + '                 <input type="text" name="emv_urls[#{_value}][url]" class="input-text required-entry validate-url-emv" value="#{_url}" />'
+    + '             </td>'
+    + '         </tr>'
+    + '    </tbody>'
+    + '</table>'
+    + '</div>'
+
+Emv = {};
+Emv.Account = Class.create();
+Emv.Account.prototype = {
+    divId : '<?php echo $this->getWebserviceDivId() ?>',
+    addId : '<?php echo $this->getAddId() ?>',
+    availableServicesId :'<?php echo $this->getAvailableServiceId()?>',
+    urlDefault : <?php echo $this->getDefaultUrls() ?>,
+
+    itemCount : <?php echo $index ?>,
+    usedServices : <?php echo  Mage::helper('core')->jsonEncode($usedService) ?>,
+    template : new Template(serviceTemplate),
+
+    initialize : function() {
+        // bind add function
+        var button = $(this.addId);
+        Event.observe(button, 'click', this.addNewService.bind(this));
+    },
+
+    addNewService : function(event) {
+        var selectedServiceId = $(this.availableServicesId).selectedIndex;
+        if (selectedServiceId >=0) {
+            this.usedServices[this.itemCount] = {
+                'text' : $(this.availableServicesId)[selectedServiceId].text,
+                'value' : $(this.availableServicesId)[selectedServiceId].value
+            };
+
+            var urlDefault = '';
+            if (typeof(this.urlDefault[this.usedServices[this.itemCount].value]) != 'undefined') {
+                urlDefault = this.urlDefault[this.usedServices[this.itemCount].value];
+            }
+
+            // build new service from template text
+            var templateData = {
+                _id    : this.itemCount,
+                _value : this.usedServices[this.itemCount].value,
+                _text  : this.usedServices[this.itemCount].text,
+                _url   : urlDefault
+            };
+            $(this.divId).insert(this.template.evaluate(templateData));
+
+            // remove selected service from the available list
+            $(this.availableServicesId).options[selectedServiceId].remove();
+
+            this.itemCount ++;
+        }
+    },
+
+    deleteService : function(indexService)
+    {
+        $('service' + indexService).remove();
+        this.restoreServiceInAvailableList(
+            this.usedServices[indexService].text,
+            this.usedServices[indexService].value
+        );
+        // remove used service from the list
+        delete this.usedServices[indexService];
+    },
+
+    restoreServiceInAvailableList : function (text, value)
+    {
+        var newOption = '<option value="' + value + '">' + text + '</option>';
+        $(this.availableServicesId).insert(newOption);
+    }
+}
+
+emvAccount = new Emv.Account();
+
+
+Validation.add(
+    'validate-url-emv',
+    'Please enter a valid URL. Protocol is required (http://, https:// or ftp://)',
+    function(v) {
+        v = (v || '').replace(/^\s+/, '').replace(/\s+$/, '');
+        return Validation.get('IsEmpty').test(v) || /^(http|https|ftp):\/\/(([A-Z0-9]([A-Z0-9_-]*[A-Z0-9]|))(\.[A-Z0-9]([A-Z0-9_-]*[A-Z0-9]|))*)(:(\d+))?(\/[A-Z0-9~](([A-Z0-9_~-]|\.)*[A-Z0-9~]|))*\/?(.*)?$/i.test(v)
+    }
+);
+</script>

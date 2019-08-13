@@ -1,0 +1,260 @@
+<?php
+    // this block handles all javascript treatments for SmartFocus templates
+?>
+<script type="text/javascript">
+    var classNameEmvTemplateSelect = '';
+
+    // handle the way of displaying form according to send mode
+    function hideField(mailMode)
+    {
+        if (
+            mailMode == '<?php echo Emv_Emt_Model_Mailmode::CLASSIC_MODE ?>'
+            || mailMode == '<?php echo Emv_Emt_Model_Mailmode::EMV_SEND ?>'
+        )
+        {
+            $("emv_template_id").parentNode.parentNode.style.display = "none";
+            $("emv_template_id").className = '';
+            $("to_date").parentNode.parentNode.style.display = "none";
+            $("from_date").parentNode.parentNode.style.display = "none";
+            $("get_emv_templates").parentNode.parentNode.style.display = "none";
+
+            $$('#attributes_EMV_DYN tbody').first().innerHTML = '';
+            $$('#attributes_EMV_CONTENT tbody').first().innerHTML = '';
+        } else {
+            if (mailMode == '<?php echo Emv_Emt_Model_Mailmode::EMV_CREATE ?>') {
+                $("emtTemplateButtonContainer").style.display = "";
+                $("emv_template_id").parentNode.parentNode.style.display = "";
+                $("emv_template_id").className = classNameEmvTemplateSelect;
+                $("get_emv_templates").parentNode.parentNode.style.display = "";
+                $("to_date").style.display = "";
+                $("from_date").style.display = "";
+                $("to_date").parentNode.parentNode.style.display = "";
+                $("from_date").parentNode.parentNode.style.display = "";
+            }
+        }
+    }
+
+    // try to track the send mail mode modification
+    var sendModeSelect = $('emv_send_mail_mode_id');
+    if (sendModeSelect) {
+        Event.observe(window, 'load', function() {
+            // get initial class name for emv_template_id select
+            classNameEmvTemplateSelect = $("emv_template_id").className;
+
+            var sendModeValue = sendModeSelect.options[sendModeSelect.selectedIndex].value;
+            hideField(sendModeValue);
+
+            Event.observe(sendModeSelect, 'change', function(event) {
+                if (confirm('<?php echo Mage::helper('emvemt')->__('Are you sure to change the sending mode ? All your mapped attributes will be deleted !')?>')) {
+                    sendModeValue = this.options[this.selectedIndex].value;
+                    hideField(sendModeValue);
+                } else {
+                    sendModeSelect.value = sendModeValue;
+                }
+            });
+        });
+    }
+</script>
+
+<script type="text/javascript">
+    Emv = {};
+    Emv.BuildSelectOptions = Class.create();
+    Emv.BuildSelectOptions.prototype = {
+        initialize : function()
+        {
+            this.loading = false;
+            this.loader = new varienLoader(false);
+            this.elementId = '';
+        },
+        load : function (elementId, urlToLoad, params, forced) {
+            if ($(elementId) && this.loading == false || forced) {
+                this.loading = true;
+
+                if ($('messages')) {
+                    // remove all existing messages
+                    $('messages').innerHTML = '';
+                }
+                this.elementId = elementId;
+                this.loader.load(urlToLoad, params, this.proceedMessageReturn.bind(this));
+            }
+        },
+        proceedMessageReturn : function(serverResponse) {
+            this.loading = false;
+
+            if (serverResponse) {
+                // evaluate the server response in JSON format
+                data = eval('(' + serverResponse + ')');
+                if (typeof(data) != 'undefined') {
+                    if (typeof(data.html) == 'object') {
+                        for (elementId in data.html) {
+                            var element = $(elementId);
+                            if (element) {
+                                element.innerHTML = data.html[elementId];
+                            }
+                        }
+                        if (typeof(data.error_messages) != 'undefined' && data.error_messages) {
+                            if ($('messages')) {
+                                $('messages').innerHTML = '<ul class="messages"><li class="error-msg"><ul><li>'
+                                    + data.error_messages + '</li></ul></li></ul>';
+                            }
+                        }
+                    }
+
+                    if (this.elementId) {
+                        this.hideAndRemoveMessage();
+                        $(this.elementId).update('');
+
+                        if (typeof(data.error) == 'string' && data.error != '') {
+                            this.prepareErrorMessage(data.error);
+                        } else if(typeof(data.error) == 'boolean' && data.error && typeof(data.message) == 'string' && data.message != '') {
+                            this.prepareErrorMessage(data.message);
+                        }
+
+                        if (typeof(data.options) == 'object' && data.options.length >= 1) {
+                            for (var i = 0; i < data.options.length; i++) {
+                                var opt = document.createElement('option');
+                                opt.text = data.options[i].label;
+                                opt.value = data.options[i].value;
+                                $(this.elementId).options.add(opt);
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        hideAndRemoveMessage : function()
+        {
+            var advices = $(this.elementId).parentNode.select('.validation-advice');
+            if (advices.length) {
+                advices.first().remove();
+            }
+        },
+        prepareErrorMessage : function(error)
+        {
+            $(this.elementId).parentNode.insert('<div class="validation-advice">' + error + '</div>');
+        }
+    }
+
+    buildSelectOption = new Emv.BuildSelectOptions();
+</script>
+<script type="text/javascript">
+<!--
+    var lastEmvTemplate = '';
+
+    // function to get all SmartFocus attributes and refresh them
+    function getEmvAttribute() {
+        if (
+            $('emv_send_mail_mode_id').value == '<?php echo Emv_Emt_Model_Mailmode::EMV_CREATE ?>'
+            && $('emv_template_id').value
+        ) {
+            if (confirm('<?php echo Mage::helper('emvemt')->__('Are you sure to refresh all your mapped SmartFocus Attributes ?') ?>')) {
+                var params = {
+                        account_id          : $('emv_account_id').value,
+                        emv_template_id     : $('emv_template_id').value ,
+                        id                  : $('id').value
+                    }
+
+                lastEmvTemplate = emvTemplateSelect.value;
+                buildSelectOption.load(
+                    '',
+                    '<?php echo $this->getUrl('*/*/getEmvAttributesAjax'); ?>',
+                    params,
+                    true
+                );
+            } else {
+                emvTemplateSelect.value = lastEmvTemplate;
+            }
+        }
+    }
+
+    // track SmartFocus template changes
+    var emvTemplateSelect = $('emv_template_id');
+    if (emvTemplateSelect) {
+        Event.observe(emvTemplateSelect, 'change', function(event) {
+            getEmvAttribute();
+        });
+    }
+
+    // SmartFocus account handler
+    var mageTemplateUrl = '<?php echo $this->getUrl('*/*/getNotMappedMagentoTemplateSelectAjax'); ?>';
+    var accountSelect = $('emv_account_id');
+    if (accountSelect) {
+        Event.observe(accountSelect, 'change', function(event) {
+            var params = {
+                account_id : accountSelect.value
+            };
+            buildSelectOption.load('mage_template_id', mageTemplateUrl, params);
+        });
+    }
+
+    // get_emv_templates handler
+    var emvTemplateUrl = '<?php echo $this->getUrl('*/*/getEmvTemplateSelectAjax'); ?>';
+    var button = $('get_emv_templates');
+    if (button) {
+        Event.observe(button, 'click', function(event) {
+            var params = {
+                account_id : $('emv_account_id').value,
+                from: $('from_date').value ,
+                to :$('to_date').value
+            };
+             buildSelectOption.load('emv_template_id', emvTemplateUrl, params);
+        });
+    }
+//-->
+</script>
+
+<script type="text/javascript">
+<!--
+// insert Magento variables
+var variableLoader = new varienLoader(true);
+var lastMageAttrId = '';
+function setLastMageAttrId(id){
+    lastMageAttrId = id;
+}
+var variableRetreiveUrl = '<?php echo $this->getUrl('*/*/getVariablesForMageTemplate'); ?>';
+function openVariableChooser()
+{
+    if (lastMageAttrId && $(lastMageAttrId)) {
+        var params = {
+                mage_template_id : $('mage_template_id').value
+            }
+        variableLoader.load(variableRetreiveUrl, params, function(serverResponse){
+            var data = eval('(' + serverResponse + ')');
+            if (typeof(data.variables) == 'object') {
+                Variables.init(lastMageAttrId);
+                Variables.resetData();
+                Variables.openVariableChooser(data.variables);
+            }
+        });
+    }
+}
+//-->
+</script>
+
+<script type="text/javascript">
+<!--
+var templatePreviewForm;
+Event.observe(window, 'load', function() {
+    templatePreviewForm = new varienForm('emv_template_preview_form');
+});
+function openPreview() {
+    $('preview_emv_account_id').value         = $('emv_account_id').value;
+    $('preview_emv_template_id').value        = $('emv_template_id').value;
+    $('preview_emv_send_mail_mode_id').value  = $('emv_send_mail_mode_id').value;
+    $('preview_mage_template_id').value       = $('mage_template_id').value;
+
+    var contentInput = '';
+    $$('#attributes_EMV_CONTENT tr, #attributes_EMV_DYN tr').each(function(element){
+        $(element).select('input,textarea').each(function(inputElm){
+            contentInput += '<input type="hidden"' + ' name="'+ inputElm.name +'"' + ' value="' + inputElm.value + '"'
+                + '/>' ;
+        });
+    })
+    $('preview-attribute-value').innerHTML    = contentInput;
+
+    templatePreviewForm.submit();
+    return false;
+}
+
+//-->
+</script>

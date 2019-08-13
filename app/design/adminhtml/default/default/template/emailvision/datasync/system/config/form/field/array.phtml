@@ -1,0 +1,269 @@
+<?php
+/**
+ * Mapping table template (configuration)
+ * @see Emv_DataSync_Block_Adminhtml_System_Config_CustomerAttributes
+ */
+?>
+
+<?php
+$_htmlId = $this->getHtmlId() ? $this->getHtmlId() : '_' . uniqid();
+
+$_colspan = 2;
+if (!$this->_addAfter) {
+    $_colspan -= 1;
+}
+$_colspan = $_colspan > 1 ? 'colspan="' . $_colspan . '"' : '';
+?>
+
+<div class="grid" id="grid<?php echo $_htmlId ?>">
+    <table cellpadding="0" cellspacing="0" class="border">
+        <tbody>
+
+            <tr class="headings" id="headings<?php echo $_htmlId ?>">
+<?php foreach ($this->_columns as $columnName => $column):?>
+                <th><?php echo $column['label'] ?></th>
+<?php endforeach;?>
+                <th <?php echo $_colspan?>></th>
+            </tr>
+
+            <tr id="addRow<?php echo $_htmlId ?>">
+                <td colspan="<?php echo count($this->_columns) ?>"></td>
+                <td <?php echo $_colspan?>>
+                    <button style="" onclick="" class="scalable add" type="button" id="addToEndBtn<?php echo $_htmlId ?>">
+                        <span><?php echo $this->_addButtonLabel ?></span>
+                    </button>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <input type="hidden" name="<?php echo $this->getElement()->getName() ?>[__empty]" value="" />
+</div>
+<div id="empty<?php echo $_htmlId ?>">
+    <button style="" onclick="" class="scalable add" type="button" id="emptyAddBtn<?php echo $_htmlId ?>">
+        <span><?php echo $this->_addButtonLabel ?></span>
+    </button>
+</div>
+
+<?php
+$fieldstoJs = array();
+$emailVisionFields = Mage::helper('emvdatasync')->getEmailVisionFieldsFromConfig();
+foreach ($emailVisionFields as $field) {
+    $fieldstoJs[] = strtolower($field['name']);
+}
+?>
+
+<script type="text/javascript">
+//<![CDATA[
+var emailVisionFields = new Array(<?php echo "'" . implode("','", $fieldstoJs) . "'" ?>);
+var usedEmailVisionFields = new Array();
+var previous;
+var index;
+var customerMappingId = 'emvdatasync_customer_mapping_emailvision_entity_id';
+
+// Add Array method to complete removing values from arrays
+Array.prototype.remove = function(value) {
+    if (this.indexOf(value)!==-1) {
+       this.splice(this.indexOf(value), 1);
+       return true;
+   } else {
+      return false;
+   };
+}
+
+// Remove new used option and add the old one from other selects
+function updateOptions() {
+    var selects;
+    var optionToRemove;
+    selects = $$('select.emailvision_select');
+    // Push the customer entity field in the selects concerned array
+    selects.push($(customerMappingId));
+
+    // Remove used options
+    for (var ii = 0; ii < usedEmailVisionFields.length; ii++) {
+        selects.each(function (select) {
+            // remove all options that have been used
+            for (var i=0; i < select.options.length; i++) {
+                if (i != select.selectedIndex) {
+                    if (select.options[i].value == usedEmailVisionFields[ii]) {
+                        select.options[i].remove();
+                    }
+                }
+            }
+        });
+    }
+
+    var optionsToAdd = new Array();
+    // Add not used ones
+    for (var ii = 0; ii < emailVisionFields.length; ii++) {
+        selects.each(function (select) {
+            optionToAdd = select.select('option[value="'+ emailVisionFields[ii] +'"]').first();
+            if(optionToAdd == null) {
+                select.insert(new Element('option', {value: emailVisionFields[ii]}).update(emailVisionFields[ii].toUpperCase()));
+            }
+        });
+    }
+}
+
+// Observe window loaded to separate values that are already used in options and the others
+Event.observe(window, 'load', function() {
+    updateOptions();
+});
+
+// Check use of first field
+emailVisionFields.remove($(customerMappingId).value);
+usedEmailVisionFields.push($(customerMappingId).value);
+
+$(customerMappingId).observe('focus', function () {
+    previous = this.value;
+}).observe('change', function() {
+    usedEmailVisionFields.remove(previous);
+    usedEmailVisionFields.push(this.value);
+    emailVisionFields.remove(this.value);
+    emailVisionFields.push(previous);
+    updateOptions();
+});
+
+// create row creator
+var arrayRow<?php echo $_htmlId ?> = {
+    // define row prototypeJS template
+    template : new Template(
+        '<tr id="#{_id}">'
+<?php foreach ($this->_columns as $columnName => $column):?>
+            +'<td>'
+                +'<?php echo $this->_renderCellTemplate($columnName)?>'
+            +'<\/td>'
+<?php endforeach;?>
+<?php if ($this->_addAfter):?>
+            +'<td><button onclick="" class="scalable add" type="button" id="addAfterBtn#{_id}"><span><?php echo Mage::helper('adminhtml')->__('Add after') ?><\/span><\/button><\/td>'
+<?php endif;?>
+            +'<td><button onclick="arrayRow<?php echo $_htmlId ?>.del(\'#{_id}\')" class="scalable delete" type="button"><span><?php echo Mage::helper('adminhtml')->__('Delete') ?><\/span><\/button><\/td>'
+        +'<\/tr>'
+    ),
+
+    rowsCount : 0,
+
+    add : function(templateData, insertAfterId)
+    {
+        this.mustBeRefreshed = false;
+        if (emailVisionFields.length == 0) {
+            // if we don't have any emailvision
+            return false;
+        }
+
+        var newTemplate = false;
+        if ('' == templateData) {
+            // if template data is empty, indicate this is a new template
+            newTemplate = true;
+
+            var d = new Date();
+            // generate default template data
+            var templateData = {
+<?php foreach ($this->_columns as $columnName => $column):?>
+                <?php echo $columnName ?> : '',
+<?php endforeach;?>
+                _id : '_' + d.getTime() + '_' + d.getMilliseconds()
+            };
+        }
+
+        // insert before last row
+        if ('' == insertAfterId) {
+            Element.insert($('addRow<?php echo $_htmlId ?>'), {before: this.template.evaluate(templateData)});
+        }
+        // insert after specified row
+        else {
+            Element.insert($(insertAfterId), {after: this.template.evaluate(templateData)});
+        }
+
+<?php if ($this->_addAfter):?>
+        Event.observe('addAfterBtn' + templateData._id, 'click', this.add.bind(this, '', templateData._id));
+<?php endif;?>
+
+        // Select is in second td in tr
+        this.emailvisionSelect = $(templateData._id).down().next().down();
+
+        for(var ii = 0; ii < usedEmailVisionFields.length; ii++) {
+            // get option corresponding to a used value
+            this.optionSelected = this.emailvisionSelect.select('option:[value="'+ usedEmailVisionFields[ii] +'"]').first();
+
+            if (this.optionSelected && this.optionSelected.value ==  usedEmailVisionFields[ii]) {
+                if (newTemplate) {
+                    this.optionSelected.remove();
+                }
+                this.mustBeRefreshed = true;
+            }
+        }
+        // Push and remove used and not used options
+        emailVisionFields.remove(this.emailvisionSelect.value);
+        usedEmailVisionFields.push(this.emailvisionSelect.value);
+
+        this.emailvisionSelect.observe('focus', function () {
+            previous = this.value;
+        }).observe('change', function() {
+            usedEmailVisionFields.remove(previous);
+            usedEmailVisionFields.push(this.value);
+            emailVisionFields.remove(this.value);
+            emailVisionFields.push(previous);
+            updateOptions();
+        });
+
+        if (this.mustBeRefreshed == true) {
+            updateOptions();
+        }
+
+        this.rowsCount += 1;
+    },
+
+    del : function(rowId)
+    {
+        var selectedValue = $(rowId).select('select.emailvision_select').first().value;
+
+        // Push and remove used and not used options
+        emailVisionFields.push(selectedValue);
+        usedEmailVisionFields.remove(selectedValue);
+
+        $(rowId).remove();
+        this.rowsCount -= 1;
+        if (0 == this.rowsCount) {
+            this.showButtonOnly();
+        }
+        updateOptions();
+    },
+
+    showButtonOnly : function()
+    {
+        $('grid<?php echo $_htmlId ?>').hide();
+        $('empty<?php echo $_htmlId ?>').show();
+    }
+}
+
+// bind add action to "Add" button in last row
+Event.observe('addToEndBtn<?php echo $_htmlId ?>', 'click', arrayRow<?php echo $_htmlId ?>.add.bind(arrayRow<?php echo $_htmlId ?>, '', ''));
+// add existing rows
+<?php
+$_addAfterId = "headings{$_htmlId}";
+foreach ($this->getArrayRows() as $_rowId => $_row) {
+    echo "arrayRow{$_htmlId}.add(" . $_row->toJson() . ", '{$_addAfterId}');\n";
+    $_addAfterId = $_rowId;
+}
+?>
+
+// initialize standalone button
+$('empty<?php echo $_htmlId ?>').hide();
+Event.observe('emptyAddBtn<?php echo $_htmlId ?>', 'click', function () {
+    $('grid<?php echo $_htmlId ?>').show();
+    $('empty<?php echo $_htmlId ?>').hide();
+    arrayRow<?php echo $_htmlId ?>.add('', '');
+});
+
+// if no rows, hide grid and show button only
+<?php if (!$this->getArrayRows()):?>
+arrayRow<?php echo $_htmlId ?>.showButtonOnly();
+<?php endif;?>
+
+// toggle the grid, if element is disabled (depending on scope)
+<?php if ($this->getElement()->getDisabled()):?>
+toggleValueElements({checked:true}, $('grid<?php echo $_htmlId ?>').parentNode);
+<?php endif;?>
+//]]>
+</script>

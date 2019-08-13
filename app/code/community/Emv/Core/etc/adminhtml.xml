@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <menu>
+        <!-- EmailVision menu in the back office -->
+        <emailvision translate="title" module="adminhtml">
+            <title>SmartFocus</title>
+            <sort_order>999</sort_order>
+            <children>
+                <emvcore translate="title">
+                    <title>Accounts</title>
+                    <sort_order>10</sort_order>
+                    <action>emv_core/account</action>
+                </emvcore>
+            </children>
+        </emailvision>
+    </menu>
+
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <!-- EmailVision acl -->
+                    <emailvision translate="title" module="emvcore">
+                        <title>SmartFocus</title>
+                        <sort_order>90</sort_order>
+                        <children>
+                            <emvcore translate="title" module="emvcore">
+                                <title>Accounts</title>
+                                <sort_order>1000</sort_order>
+                            </emvcore>
+                        </children>
+                    </emailvision>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

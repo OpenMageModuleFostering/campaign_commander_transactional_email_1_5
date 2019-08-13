@@ -1,0 +1,14 @@
+.emv_attributes .va-middle{
+    vertical-align: middle;
+}
+.emv_attributes .content-header {
+    margin-bottom: 10px;
+    border-bottom: 4px solid #FFF;
+}
+.emv_attributes textarea{
+    width: 90%;
+    margin-top: 2px;
+}
+.emv_attributes th{
+    height: 30px;
+}

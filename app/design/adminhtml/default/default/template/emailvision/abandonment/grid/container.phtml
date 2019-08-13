@@ -1,0 +1,195 @@
+<?php
+/* @var $this Emv_Report_Block_Adminhtml_Conversion */
+?>
+
+<div class="content-header">
+    <table cellspacing="0">
+        <tr>
+            <td style="<?php echo $this->getHeaderWidth() ?>"><?php echo $this->getHeaderHtml() ?></td>
+            <td class="form-buttons"><?php echo $this->getButtonsHtml() ?></td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    <?php echo $this->getChildHtml('abandonment.report.grid.filter.form') ?>
+</div>
+
+<div class="clear"></div>
+
+<div class="grid">
+    <div class="hor-scroll">
+        <table cellspacing="0" id="" class="data">
+            <colgroup>
+                <col width="100">
+                <col width="100">
+                <col width="100">
+                <col width="100">
+                <col width="100">
+                <col width="100">
+            </colgroup>
+            <thead>
+                <tr class="headings">
+                    <th class=" no-link"><span class="nobr"></span></th>
+                    <th class=" no-link"><span class="nobr"><?php echo Mage::helper('abandonment_report')->__('Sent')?></span></th>
+                    <th class=" no-link"><span class="nobr"><?php echo Mage::helper('abandonment_report')->__('Converted')?></span></th>
+                    <th class=" no-link"><span class="nobr"><?php echo Mage::helper('abandonment_report')->__('Conversion Rate')?></span></th>
+                    <th class=" no-link"><span class="nobr"><?php echo Mage::helper('abandonment_report')->__('Total')?></span></th>
+                    <th class=" no-link"><span class="nobr"><?php echo Mage::helper('abandonment_report')->__('Average')?></span></th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr class="totals">
+                    <th class=""><?php echo Mage::helper('abandonment_report')->__('Total')?>&nbsp;</th>
+                    <td class="a-right"><?php
+                        echo Mage::helper('emvcore')
+                            ->formatNumberInLocale($this->getSumNbReminderSent(), null, 0)
+                    ?></td>
+                    <td class="a-right"><?php
+                        echo Mage::helper('emvcore')
+                            ->formatNumberInLocale($this->getSumNbConvertedCarts(), null, 0)
+                    ?></td>
+                    <td class="a-right"><?php
+                        echo Mage::helper('emvcore')
+                            ->formatNumberInLocale($this->getPercentageConversion(), null, 2) . '%';
+                    ?></td>
+                    <td class="a-right"><?php
+                        echo Mage::helper('core')
+                            ->currency($this->getSumAmountConvertedCarts(), true, true);
+                    ?></td>
+                    <td class="a-right"><?php
+                        echo Mage::helper('core')
+                            ->currency($this->getAverageRevenueConversion(), true, true);
+                    ?></td>
+                </tr>
+            </tfoot>
+            <tbody>
+                <tr title="<?php echo Mage::helper('abandonment_report')->__('SCA Email 1 - First Reminder')?>" class="even">
+                    <th ><?php echo Mage::helper('abandonment_report')->__('SCA Email 1 - First Reminder')?></th>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('emvcore')
+                                ->formatNumberInLocale($this->getNbFirstReminderSent(), null, 0);
+                        ?>
+                    </td>
+                    <td class=" a-right ">
+                        <a href="<?php echo $this->getDetailsFirstAlertUrl();?>">
+                            <?php echo Mage::helper('emvcore')
+                                ->formatNumberInLocale($this->getNbFirstReminderConverted(), null, 0);
+                            ?>
+                        </a>
+                    </td>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('emvcore')->formatNumberInLocale($this->getPercentageFirstConversion(), null, 2) . '%';
+                        ?>
+                    </td>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('core')->currency($this->getRevenueFirstConversion(), true, true);
+                        ?>
+                    </td>
+                    <td class=" a-right last">
+                        <?php
+                            echo Mage::helper('core')->currency($this->getAverageRevenueFirstConversion(), true, true);
+                        ?>
+                    </td>
+                </tr>
+
+                <tr title="<?php echo Mage::helper('abandonment_report')->__('SCA Email 2 - Second Reminder') ?>" class="odd">
+                    <th ><?php echo Mage::helper('abandonment_report')->__('SCA Email 2 - Second Reminder') ?></th>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('emvcore')->formatNumberInLocale($this->getNbSecondReminderSent(), null, 0);
+                        ?>
+                    </td>
+                    <td class=" a-right ">
+                        <a href="<?php echo $this->getDetailsSecondAlertUrl();?>">
+                            <?php
+                                echo Mage::helper('emvcore')
+                                    ->formatNumberInLocale($this->getNbSecondReminderConverted(), null, 0);
+                            ?>
+                        </a>
+                    </td>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('emvcore')
+                                ->formatNumberInLocale($this->getPercentageSecondConversion(), null, 2) . '%';
+                        ?>
+                    </td>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('core')->currency($this->getRevenueSecondConversion(), true, true);
+                        ?>
+                    </td>
+                    <td class=" a-right last">
+                        <?php
+                            echo Mage::helper('core')->currency($this->getAverageRevenueSecondConversion(), true, true);
+                        ?>
+                    </td>
+                </tr>
+
+                <tr title="<?php echo Mage::helper('abandonment_report')->__('SCA Email 3 - Third Reminder') ?>" class="even">
+                    <th ><?php echo Mage::helper('abandonment_report')->__('SCA Email 3 - Third Reminder') ?></th>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('emvcore')
+                                ->formatNumberInLocale($this->getNbThirdReminderSent(), null, 0);
+                        ?>
+                    </td>
+                    <td class=" a-right ">
+                        <a href="<?php echo $this->getDetailsThirdAlertUrl();?>">
+                            <?php
+                                echo Mage::helper('emvcore')->formatNumberInLocale($this->getNbThirdReminderConverted(), null, 0);
+                            ?>
+                        </a>
+                    </td>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('emvcore')
+                                ->formatNumberInLocale($this->getPercentageThirdConversion(), null, 2) . '%';
+                        ?>
+                    </td>
+                    <td class=" a-right ">
+                        <?php
+                            echo Mage::helper('core')->currency($this->getRevenueThirdConversion(), true, true);
+                        ?>
+                    </td>
+                    <td class=" a-right last">
+                        <?php
+                            echo Mage::helper('core')->currency($this->getAverageRevenueThirdConversion(), true, true);
+                        ?>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="clear"></div>
+
+
+<script type="text/javascript">
+    function filterFormSubmit() {
+        var filters = $$('#filter_form input');
+        var elements = [];
+        for(var i in filters){
+            if(filters[i].value && filters[i].value.length && !filters[i].disabled) elements.push(filters[i]);
+        }
+        var validator  = new Validation('filter_form');
+        if (validator.validate()) {
+            setLocation('<?php echo $this->getFilterUrl(); ?>filter/'+encode_base64(Form.serializeElements(elements))+'/');
+        }
+    }
+
+    function filterExportSubmit() {
+        var filters = $$('#filter_form input');
+        var elements = [];
+        for(var i in filters){
+            if(filters[i].value && filters[i].value.length && !filters[i].disabled) elements.push(filters[i]);
+        }
+        var validator  = new Validation('filter_form');
+        if (validator.validate()) {
+            setLocation('<?php echo $this->getExportUrl(); ?>filter/'+encode_base64(Form.serializeElements(elements))+'/');
+        }
+    }
+</script>

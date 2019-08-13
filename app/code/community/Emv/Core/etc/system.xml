@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <tabs>
+        <emailvision translate="label" module="emvcore">
+            <label>SmartFocus</label>
+            <sort_order>150</sort_order>
+        </emailvision>
+    </tabs>
+</config>
+

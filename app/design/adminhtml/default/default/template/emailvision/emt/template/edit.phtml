@@ -1,0 +1,49 @@
+<?php // buttons ?>
+<div class="content-header">
+    <h3 class="icon-head head-products"><?php echo $this->getHeader() ?></h3>
+    <p class="content-buttons form-buttons"><?php echo $this->getBackButtonHtml() ?>
+
+    <?php echo $this->getCancelButtonHtml() ?>
+
+    <?php if ($this->getEmt()->getId()) :?>
+        <?php echo $this->getPreviewButtonHtml()?>
+        <?php echo $this->getEmvAttributeButtonHtml()?>
+        <?php echo $this->getInsertMageVariableButtonHtml()?>
+
+        <?php echo $this->getDeleteButtonHtml() ?>
+        <?php echo $this->getSaveAndEditButtonHtml() ?>
+    <?php endif; ?>
+    </p>
+</div>
+
+<form action="<?php echo $this->getPreviewUrl() ?>" method="post" id="emv_template_preview_form" target="_blank" >
+    <?php echo $this->getBlockHtml('formkey')?>
+    <div class="no-display">
+        <input type="hidden" id="preview_mage_template_id" name="mage_template_id" value="" />
+        <input type="hidden" id="preview_emv_send_mail_mode_id" name="emv_send_mail_mode_id" value="" />
+        <input type="hidden" id="preview_emv_template_id" name="emv_template_id" value="" />
+        <input type="hidden" id="preview_emv_account_id" name="emv_account_id" value="" />
+        <div id="preview-attribute-value"></div>
+    </div>
+</form>
+
+<?php // form place holder ?>
+<form action="<?php echo $this->getSaveUrl() ?>" method="post" id="emv_template_edit_form" enctype="multipart/form-data">
+    <div style="display:none"></div>
+    <?php echo $this->getBlockHtml('formkey')?>
+</form>
+
+
+
+<script type="text/javascript">
+//<![CDATA[
+    var campaignCommanderTemplateSyntax = /(^|.|\r|\n)({{(\w+)}})/;
+    var editForm = new varienForm('emv_template_edit_form', '');
+
+    function saveAndContinueEdit(urlTemplate) {
+        var template = new Template(urlTemplate, campaignCommanderTemplateSyntax);
+        var url = template.evaluate({tab_id:emv_template_tabsJsTabs.activeTab.id});
+        editForm.submit(url);
+    }
+//]]>
+</script>

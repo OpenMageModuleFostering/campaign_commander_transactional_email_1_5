@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Emv_Emt>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Emv_Core />
+            </depends>
+        </Emv_Emt>
+    </modules>
+</config>

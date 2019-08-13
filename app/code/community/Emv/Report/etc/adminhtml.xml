@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+        <emailvision>
+            <children>
+                <abandonment translate="title" module="abandonment_report">
+                    <title>Abandoned Cart Conversion Report</title>
+                    <action>emv_report/conversion</action>
+                </abandonment>
+            </children>
+        </emailvision>
+    </menu>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <emailvision translate="title" module="reports">
+                        <children>
+                            <abandonment translate="title">
+                                <title>Abandoned Cart Conversion Report</title>
+                            </abandonment>
+                        </children>
+                    </emailvision>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

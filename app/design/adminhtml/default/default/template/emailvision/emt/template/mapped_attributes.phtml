@@ -1,0 +1,138 @@
+<?php
+    /* @var Emv_Emt_Block_Adminhtml_Template_Edit_Tab_EmvDyn */
+    $this->prepareAttributes();
+    $availableAttributes = $this->getAvailableAttributes();
+    $invalidAttributes = $this->getInvalidAttributes();
+?>
+
+<div class="entry-edit custom-options product-custom-options" id="<?php echo $this->getDivContentId() ?>">
+    <div class="entry-edit-head">
+        <h4><?php echo Mage::helper('emvemt')->__('Configuration') ?></h4>
+    </div>
+    <div class="box">
+
+        <?php // Available attribute block ?>
+        <div class="grid option-box emv_attributes">
+            <div class="content-header">
+                <h3><?php echo Mage::helper('emvemt')->__('Available Attributes') ?></h3>
+            </div>
+            <div class="hor-scroll">
+                <table cellspacing="0" id="<?php echo $this->getAttributesTableId() ?>" class="data">
+                    <colgroup>
+                        <col width="100">
+                        <col width="">
+                    </colgroup>
+                    <thead>
+                        <tr class="headings">
+                            <th class="a-center va-middle"><?php echo Mage::helper('emvemt')->__('SmartFocus Attribute')?></th>
+                            <th class="a-center va-middle"><?php echo Mage::helper('emvemt')->__('Personalized Content')?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach($availableAttributes as $attribute ) :?>
+                            <?php
+                                $index = $this->getNewIndexForAttributes();
+                                $className = 'even';
+                                if ($index%2) {
+                                    $className = 'odd';
+                                }
+                                if (isset($attribute['invalid']) && $attribute['invalid'] == true) {
+                                    $className .= ' invalid';
+                                }
+                            ?>
+                            <tr class="<?php echo $className ?>">
+                                <td class="a-center va-middle">
+                                    <?php echo $attribute['emv_attribute'];?>
+                                </td>
+                                <td class="a-center va-middle last">
+                                    <textarea
+                                        name="attributes[<?php echo $index;?>][mage_attribute]"
+                                        id="emv_attribute_<?php echo $index;?>_mage_attribute"
+                                        rows="<?php echo $this->getTextareaRows()?>"
+                                        onfocus="setLastMageAttrId('emv_attribute_<?php echo $index;?>_mage_attribute');"
+                                    ><?php
+                                        echo Mage::helper('core')->escapeHtml($attribute['mage_attribute'])
+                                    ?></textarea>
+
+                                    <input type="hidden" value="<?php echo $attribute['emv_attribute_type']?>"
+                                        name="attributes[<?php echo $index;?>][emv_attribute_type]"
+                                    />
+                                    <input type="hidden" value="<?php echo (isset($attribute['id'])) ? $attribute['id'] : ''?>"
+                                        name="attributes[<?php echo $index;?>][id]"
+                                    />
+                                    <input type="hidden" name="attributes[<?php echo $index;?>][delete]" value="" class="delete"/>
+                                    <input type="hidden" name="attributes[<?php echo $index;?>][emv_attribute]"
+                                        value="<?php echo $attribute['emv_attribute'] ?>"
+                                    />
+                                </td>
+                            </tr>
+                        <?php endforeach;?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <?php if (count($invalidAttributes)) :?>
+        <?php // Invalid attribute block - all invalid attributes will be deleted after ?>
+            <div class="grid option-box emv_attributes">
+                <div class="content-header">
+                    <h3><?php echo Mage::helper('emvemt')->__('Invalid Attributes (from the last save)') ?></h3>
+                </div>
+                <div class="hor-scroll">
+                    <table cellspacing="0" id="<?php echo $this->getInvalidAttributeTableId() ?>" class="data">
+                        <colgroup>
+                            <col width="100">
+                            <col width="">
+                        </colgroup>
+                        <thead>
+                            <tr class="headings">
+                                <th class="a-center va-middle"><?php echo Mage::helper('emvemt')->__('SmartFocus Attribute')?></th>
+                                <th class="a-center va-middle"><?php echo Mage::helper('emvemt')->__('Personalized Content')?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($invalidAttributes as $attribute ) :?>
+                                <?php
+                                    $index = $this->getNewIndexForAttributes();
+                                    $className = 'even';
+                                    if ($index%2) {
+                                        $className = 'odd';
+                                    }
+                                    if (isset($attribute['invalid']) && $attribute['invalid'] == true) {
+                                        $className .= ' invalid';
+                                    }
+                                ?>
+                                <tr class="<?php echo $className ?>">
+                                    <td class="a-center va-middle">
+                                        <?php echo $attribute['emv_attribute'];?>
+                                    </td>
+                                    <td class="a-center va-middle last">
+                                        <textarea
+                                            name="attributes[<?php echo $index;?>][mage_attribute]"
+                                            id="emv_attribute_<?php echo $index;?>_mage_attribute"
+                                            rows="<?php echo $this->getTextareaRows()?>"
+                                            disabled="disabled"
+                                        ><?php
+                                            echo Mage::helper('core')->escapeHtml($attribute['mage_attribute'])
+                                        ?></textarea>
+
+                                        <input type="hidden" value="<?php echo $attribute['emv_attribute_type']?>"
+                                            name="attributes[<?php echo $index;?>][emv_attribute_type]"
+                                        />
+                                        <input type="hidden" value="<?php echo (isset($attribute['id'])) ? $attribute['id'] : ''?>"
+                                            name="attributes[<?php echo $index;?>][id]"
+                                        />
+                                        <input type="hidden" name="attributes[<?php echo $index;?>][delete]" value="1" class="delete"/>
+                                        <input type="hidden" name="attributes[<?php echo $index;?>][emv_attribute]"
+                                            value="<?php echo $attribute['emv_attribute'] ?>"
+                                        />
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        <?php endif; // end invalid attributes if ?>
+    </div>
+</div>

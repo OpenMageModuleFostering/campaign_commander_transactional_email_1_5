@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Emv_CartAlert>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Emv_Core />
+                <Emv_Emt />
+            </depends>
+        </Emv_CartAlert>
+    </modules>
+</config>

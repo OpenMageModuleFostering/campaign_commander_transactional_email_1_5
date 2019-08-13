@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <menu>
+        <!-- EmailVision menu in the back office -->
+        <emailvision translate="title" module="adminhtml">
+            <children>
+                <emvemt translate="title" module="emvemt">
+                    <title>Transactional Messages (NMP)</title>
+                    <sort_order>50</sort_order>
+                    <children>
+                        <emt translate="title" module="emvemt">
+                            <title>Email Templates</title>
+                            <sort_order>10</sort_order>
+                            <action>emv_emt/template</action>
+                        </emt>
+                        <log translate="title" module="emvemt">
+                            <title>Email Sending Logs</title>
+                            <sort_order>50</sort_order>
+                            <action>emv_emt/log</action>
+                        </log>
+                        <reschedule translate="title" module="emvemt">
+                            <title>Re-scheduled Email List</title>
+                            <sort_order>100</sort_order>
+                            <action>emv_emt/reschedule</action>
+                        </reschedule>
+                    </children>
+                </emvemt>
+            </children>
+        </emailvision>
+    </menu>
+
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <!-- EmailVision acl -->
+                    <emailvision>
+                        <children>
+                            <emvemt translate="title" module="emvemt">
+                                <title>Transactional Messages (NMP)</title>
+                                <children>
+                                    <emt>
+                                        <title>Email Templates</title>
+                                        <sort_order>10</sort_order>
+                                    </emt>
+                                    <log>
+                                        <title>Email Sending Logs</title>
+                                        <sort_order>50</sort_order>
+                                    </log>
+                                    <reschedule>
+                                        <title>Re-scheduled Email List</title>
+                                        <sort_order>100</sort_order>
+                                    </reschedule>
+                                </children>
+                            </emvemt>
+                        </children>
+                    </emailvision>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <emvemt>
+                                        <title>SmartFocus - Transactional Service Setting</title>
+                                    </emvemt>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

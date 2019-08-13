@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Emv_Core>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Emv_Core>
+    </modules>
+</config>

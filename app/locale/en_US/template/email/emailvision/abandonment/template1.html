@@ -1,0 +1,60 @@
+<!--@subject You've got a cart on our store @-->
+<!--@vars
+{
+"var cart.getStoreLink()":"Store Url",
+"var logo_url":"Email Logo Image Url",
+"var logo_alt":"Email Logo Image Alt",
+"var cart.getCartLink()":"Cart Url",
+"var cart.getCustomerPrefix()":"Customer Prefix",
+"htmlescape var=$cart.getPreparedCustomerName()":"Customer Whole Name",
+"htmlescape var=$cart.getCustomerFirstname()":"Customer First Name",
+"htmlescape var=$cart.getCustomerMiddlename()":"Customer Middle Name",
+"htmlescape var=$cart.getCustomerLastname()":"Customer Last Name",
+"block type='abandonment/cart_items' name='items' cart=$cart":"Cart Item Grid",
+"var promo_code|escape":"Promo Code",
+"var cart.getUnsubLink()":"Unsubscription Url"
+}
+@-->
+<!--@styles
+body{ color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; }
+@-->
+
+<body>
+<div>Hi {{var cart.getPreparedCustomerName()}},</div>
+<br />
+
+You have a cart on <a href="{{var cart.getStoreLink()}}" title="Our store">our store</a>
+<br />
+<br />
+
+<a href="{{var cart.getCartLink()}}" title="COMPLETE YOUR ORDER NOW"
+    target="_blank"><font color="#422C1E">View it now</font></a>
+<br />
+<br />
+
+Your Cart :
+<br />
+<table border="0">
+    <tr>
+        <td>{{block type="abandonment/cart_items" name="items" cart=$cart}}</td>
+    </tr>
+    <tr align="right">
+        <td><strong>Your Order Total: {{var cart.getPreparedGrandToTal()}}</strong></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>
+            <a href="{{var cart.getCartLink()}}"
+            title="COMPLETE YOUR ORDER NOW" target="_blank"><font
+            color="#422C1E">GO TO CART {{if promo_code}}<strong> and apply the coupon "{{var promo_code|escape}}"</strong>{{/if}}</font>
+            </a> 
+            <br />
+            <br />
+            Click here to <a href="{{var cart.getUnsubLink()}}" title="Unsubscribe" target="_blank">unsubscribe</a> to these reminders
+        </td>
+    </tr>
+    
+</table>
+</body>

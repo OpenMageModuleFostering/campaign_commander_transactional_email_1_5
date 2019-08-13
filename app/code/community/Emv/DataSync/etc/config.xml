@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Emv_DataSync>
+            <version>0.1.0</version>
+        </Emv_DataSync>
+    </modules>
+
+    <admin>
+        <routers>
+            <emvdatasync>
+                <use>admin</use>
+                <args>
+                    <module>Emv_DataSync_Adminhtml</module>
+                    <frontName>emv_datasync</frontName>
+                </args>
+            </emvdatasync>
+        </routers>
+    </admin>
+
+    <adminhtml>
+        <translate>
+            <modules>
+                <Emv_DataSync>
+                    <files>
+                        <default>Emv_DataSync.csv</default>
+                    </files>
+                </Emv_DataSync>
+            </modules>
+        </translate>
+    </adminhtml>
+
+    <global>
+        <blocks>
+            <emvdatasync>
+                <class>Emv_DataSync_Block</class>
+            </emvdatasync>
+        </blocks>
+        <models>
+            <emvdatasync>
+                <class>Emv_DataSync_Model</class>
+            </emvdatasync>
+        </models>
+        <helpers>
+            <emvdatasync>
+                <class>Emv_DataSync_Helper</class>
+            </emvdatasync>
+        </helpers>
+        <resources>
+            <emvdatasync_setup>
+                <setup>
+                    <module>Emv_DataSync</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </emvdatasync_setup>
+            <emvdatasync_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </emvdatasync_write>
+            <emvdatasync_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </emvdatasync_read>
+        </resources>
+        <events>
+            <!-- customer/customer -->
+            <customer_save_after>
+                <observers>
+                    <emailvision_on_customer_save>
+                        <type>singleton</type>
+                        <class>emvdatasync/observer</class>
+                        <method>onCustomerSave</method>
+                    </emailvision_on_customer_save>
+                </observers>
+            </customer_save_after>
+            <!-- customer/customer_address -->
+            <customer_address_save_after>
+                <observers>
+                    <emailvision_on_customer_address_save>
+                        <type>singleton</type>
+                        <class>emvdatasync/observer</class>
+                        <method>onCustomerAddressSave</method>
+                    </emailvision_on_customer_address_save>
+                </observers>
+            </customer_address_save_after>
+            <!-- newsletter/subscriber -->
+            <newsletter_subscriber_delete_after>
+                <observers>
+                    <emailvision_on_subscriber_delete>
+                        <type>singleton</type>
+                        <class>emvdatasync/observer</class>
+                        <method>onSubscriberDelete</method>
+                    </emailvision_on_subscriber_delete>
+                </observers>
+            </newsletter_subscriber_delete_after>
+            <newsletter_subscriber_save_after>
+                <observers>
+                    <emailvision_on_subscriber_save>
+                        <type>singleton</type>
+                        <class>emvdatasync/observer</class>
+                        <method>onSubscriberSave</method>
+                    </emailvision_on_subscriber_save>
+                </observers>
+            </newsletter_subscriber_save_after>
+        </events>
+        <template>
+            <email>
+                <emvdatasync_general_error_email_template translate="label" module="directory">
+                    <label>EmailVision cron errors</label>
+                    <file>emailvision/datasync/cron_errors.html</file>
+                    <type>html</type>
+                </emvdatasync_general_error_email_template>
+            </email>
+        </template>
+    </global>
+
+    <crontab>
+        <jobs>
+            <emailvision_member_export>
+                <run>
+                    <model>emvdatasync/cron::memberExport</model>
+                </run>
+            </emailvision_member_export>
+            <emailvision_batchmember_export>
+                <run>
+                    <model>emvdatasync/cron::batchMemberExport</model>
+                </run>
+            </emailvision_batchmember_export>
+            <emailvision_clean>
+                <run>
+                    <model>emvdatasync/cron::cleanEmailVisionFiles</model>
+                </run>
+            </emailvision_clean>
+        </jobs>
+    </crontab>
+
+    <default>
+        <emvdatasync>
+            <general>
+                <error_email_recipient>contact@domain.com</error_email_recipient>
+                <error_email_sender>general</error_email_sender>
+                <error_email_template>emvdatasync_batchmember_error_email_template</error_email_template>
+            </general>
+
+            <batchmember>
+                <performance>10000</performance>
+                <enabled>0</enabled>
+            </batchmember>
+
+            <last_successful_synchronization>
+                <customers></customers>
+            </last_successful_synchronization>
+            <customer_mapping>
+                <emailvision_entity_id>clienturn</emailvision_entity_id>
+            </customer_mapping>
+        </emvdatasync>
+    </default>
+</config>

@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/Campaign_Commander_Transactional_Email_1_5",
+    "type": "magento-module",
+    "license": "Academic-Free-License-(AFL)",
+    "homepage": "",
+    "description": "Transactional message delivery, abandoned cart, and data sync for Magento ",
+    "authors": [
+    {
+        "name": "SmartFocus",
+        "email": "EMVIntegrationsDevelopment@smartfocus.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
